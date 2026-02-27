@@ -52,7 +52,7 @@ interface StreamEvent {
 }
 
 // API configuration
-const API_BASE_URL = 'http://127.0.0.1:8000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
 // Enhanced agentic RAG chatbot
 const callChatAPI = async (message: string): Promise<ChatResponse> => {
