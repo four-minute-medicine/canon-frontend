@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Tiro_Devanagari_Marathi } from "next/font/google";
 import "./globals.css";
+
+const tiroDevanagariMarathi = Tiro_Devanagari_Marathi({
+  weight: ["400"],
+  subsets: ["devanagari", "latin"],
+  variable: "--font-tiro-devanagari",
+});
 
 export const metadata: Metadata = {
   title: "Project X - Medical Research Assistant",
@@ -13,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased font-sans">
+      <body className={`antialiased font-sans ${tiroDevanagariMarathi.variable}`}>
         {children}
       </body>
     </html>
