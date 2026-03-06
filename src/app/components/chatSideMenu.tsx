@@ -94,16 +94,11 @@ const ChatSideMenu = ({
                         <div onClick={onNewConversation}>
                             <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" isCollapsed={isCollapsed && !isMobile} />
                         </div>
-<<<<<<< HEAD
-                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed && !isMobile} />
-                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed && !isMobile} />
-=======
                         <div onClick={() => router.push('/upload')}>
                             <NavItems icon={<FiUploadCloud className="w-6 h-6 text-black" />} label="Upload Document" isCollapsed={isCollapsed} />
                         </div>
                         <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed} />
                         <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed} />
->>>>>>> 8b25f7a (feat: enhance chat functionality with country selection and multi-turn conversation support)
                     </ul>
                 </div>
 
