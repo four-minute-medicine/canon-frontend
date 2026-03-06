@@ -16,6 +16,7 @@ interface ChatLayoutProps {
     currentConversationId?: string | null;
     onNewConversation?: () => void;
     onLoadConversation?: (id: string) => void;
+    onCountryChange?: (isoCode: string) => void;
 }
 
 const ChatLayout = ({
@@ -23,7 +24,8 @@ const ChatLayout = ({
     chatConversations = [],
     currentConversationId = null,
     onNewConversation = () => { },
-    onLoadConversation = () => { }
+    onLoadConversation = () => { },
+    onCountryChange
 }: ChatLayoutProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -72,7 +74,7 @@ const ChatLayout = ({
             <div className={`flex flex-col 
             ${(isCollapsed && !isMobile) ? "w-19/20" : isMobile ? "w-full" : "w-4/5"} bg-white border-r border-gray-200`}>
                 {/* header */}
-                <ChatHeader isMobile={isMobile} isTablet={isTablet} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+                <ChatHeader isMobile={isMobile} isTablet={isTablet} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} onCountryChange={onCountryChange} />
 
 
                 {/* chat container */}

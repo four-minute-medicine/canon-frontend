@@ -3,21 +3,51 @@ import { useRouter } from 'next/navigation';
 import { useState } from "react";
 import { GoSidebarCollapse } from "react-icons/go";
 
+const COUNTRY_MAP: Record<string, string> = {
+    ZA: "South Africa",
+    NG: "Nigeria",
+    KE: "Kenya",
+    AU: "Australia",
+    NZ: "New Zealand",
+    CA: "Canada",
+    US: "United States of America",
+    BR: "Brazil",
+    MX: "Mexico",
+    IN: "India",
+    SG: "Singapore",
+    MY: "Malaysia",
+    ID: "Indonesia",
+    TH: "Thailand",
+    VN: "Vietnam",
+    GB: "United Kingdom",
+    DE: "Germany",
+    FR: "France",
+    IT: "Italy",
+    ES: "Spain",
+    SE: "Scandinavia",
+}
+
 interface ChatHeaderProps {
     isMobile: boolean;
     isTablet: boolean;
     isCollapsed: boolean;
     setIsCollapsed: (isCollapsed: boolean) => void;
+    onCountryChange?: (isoCode: string) => void;
 }
 
-const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHeaderProps) => {
+const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountryChange }: ChatHeaderProps) => {
     const router = useRouter();
     const [isCountryMenuOpen, setIsCountryMenuOpen] = useState(false);
-    const [selectedCountry, setSelectedCountry] = useState(isMobile ? "Country" : "Select Country");
+    const [selectedCountryCode, setSelectedCountryCode] = useState("");
 
-    const handleCountryClick = (country: string) => {
-        setSelectedCountry(country);
+    const displayLabel = selectedCountryCode
+        ? (isMobile ? selectedCountryCode : COUNTRY_MAP[selectedCountryCode] || selectedCountryCode)
+        : (isMobile ? "Country" : "Select Country");
+
+    const handleCountryClick = (isoCode: string) => {
+        setSelectedCountryCode(isoCode);
         setIsCountryMenuOpen(false);
+        onCountryChange?.(isoCode);
     }
 
     return (
@@ -40,7 +70,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                     onClick={() =>
                         setIsCountryMenuOpen(!isCountryMenuOpen)
                     }>
-                    <span className="text-lg font-medium">{selectedCountry}</span>
+                    <span className="text-lg font-medium">{displayLabel}</span>
                     <IoIosArrowDown className="w-4 h-4" />
                 </div>
 
@@ -59,26 +89,17 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">AFRICA</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "ZA" : "South Africa";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("ZA")}>
                                             <span>🇿🇦</span>
                                             <span>South Africa</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "NG" : "Nigeria";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("NG")}>
                                             <span>🇳🇬</span>
                                             <span>Nigeria</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "KE" : "Kenya";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("KE")}>
                                             <span>🇰🇪</span>
                                             <span>Kenya</span>
                                         </li>
@@ -90,18 +111,12 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">AUSTRALIA</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "AUS" : "Australia";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("AU")}>
                                             <span>🇦🇺</span>
                                             <span>Australia</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "NZ" : "New Zealand";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("NZ")}>
                                             <span>🇳🇿</span>
                                             <span>New Zealand</span>
                                         </li>
@@ -113,19 +128,12 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">NORTH AMERICA</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "CAN" : "Canada";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("CA")}>
                                             <span>🇨🇦</span>
                                             <span>Canada</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "USA" : "United States of America";
-                                                handleCountryClick(country);
-                                            }
-                                            }>
+                                            onClick={() => handleCountryClick("US")}>
                                             <span>🇺🇸</span>
                                             <span>United States of America</span>
                                         </li>
@@ -137,18 +145,12 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">SOUTH AMERICA</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "BR" : "Brazil";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("BR")}>
                                             <span>🇧🇷</span>
                                             <span>Brazil</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "MX" : "Mexico";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("MX")}>
                                             <span>🇲🇽</span>
                                             <span>Mexico</span>
                                         </li>
@@ -163,50 +165,32 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">ASIA</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "IN" : "India";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("IN")}>
                                             <span>🇮🇳</span>
                                             <span>India</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "SG" : "Singapore";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("SG")}>
                                             <span>🇸🇬</span>
                                             <span>Singapore</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "MY" : "Malaysia";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("MY")}>
                                             <span>🇲🇾</span>
                                             <span>Malaysia</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "ID" : "Indonesia";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("ID")}>
                                             <span>🇮🇩</span>
                                             <span>Indonesia</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "TH" : "Thailand";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("TH")}>
                                             <span>🇹🇭</span>
                                             <span>Thailand</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "VN" : "Vietnam";
-                                                    handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("VN")}>
                                             <span>🇻🇳</span>
                                             <span>Vietnam</span>
                                         </li>
@@ -218,50 +202,32 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHea
                                     <h2 className="text-sm font-bold text-black mb-3">EUROPE</h2>
                                     <ul className="flex flex-col gap-2 sm:w-100 w-full">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "UK" : "United Kingdom";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("GB")}>
                                             <span>🇬🇧</span>
                                             <span>United Kingdom</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "DE" : "Germany";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("DE")}>
                                             <span>🇩🇪</span>
                                             <span>Germany</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "FR" : "France";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("FR")}>
                                             <span>🇫🇷</span>
                                             <span>France</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "IT" : "Italy";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("IT")}>
                                             <span>🇮🇹</span>
                                             <span>Italy</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "ES" : "Spain";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("ES")}>
                                             <span>🇪🇸</span>
                                             <span>Spain</span>
                                         </li>
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
-                                            onClick={() => {
-                                                const country = isMobile ? "SE" : "Scandinavia";
-                                                handleCountryClick(country);
-                                            }}>
+                                            onClick={() => handleCountryClick("SE")}>
                                             <span>🇸🇪</span>
                                             <span>Scandinavia</span>
                                         </li>

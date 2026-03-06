@@ -65,7 +65,11 @@ interface chatConversation {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
 // Enhanced agentic RAG chatbot
-const callChatAPI = async (message: string): Promise<ChatResponse> => {
+const callChatAPI = async (
+  message: string,
+  history: Array<{ role: string; content: string }>,
+  country: string = ""
+): Promise<ChatResponse> => {
   try {
     const response = await fetch(`${API_BASE_URL}/chat`, {
       method: 'POST',
@@ -73,9 +77,10 @@ const callChatAPI = async (message: string): Promise<ChatResponse> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: message,
-        namespace: "my-course",  // Use the namespace where data was ingested
-        history: []     // For now, not implementing multi-turn history
+        message,
+        namespace: "my-course",
+        country,
+        history,
       }),
     })
 
@@ -94,8 +99,10 @@ const callChatAPI = async (message: string): Promise<ChatResponse> => {
 // Streaming agentic chat API
 const callStreamingChatAPI = async (
   message: string,
+  history: Array<{ role: string; content: string }>,
   onEvent: (event: StreamEvent) => void,
-  onError: (error: Error) => void
+  onError: (error: Error) => void,
+  country: string = ""
 ): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
@@ -104,9 +111,10 @@ const callStreamingChatAPI = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: message,
+        message,
         namespace: "my-course",
-        history: []
+        country,
+        history,
       }),
     })
 
@@ -170,6 +178,7 @@ export default function ChatBot() {
   const [chatConversations, setChatConversations] = useState<chatConversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('')
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -302,6 +311,15 @@ export default function ChatBot() {
       timestamp: new Date(),
     }
 
+    // Build multi-turn history from prior messages (skip the initial bot greeting)
+    const history: Array<{ role: string; content: string }> = messages
+      .filter(msg => !(msg.id === '1' && msg.sender === 'bot'))
+      .filter(msg => msg.content && !msg.isStreaming && !msg.error)
+      .map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      }))
+
     setMessages(prev => [...prev, userMessage])
     const currentInput = inputMessage
     setInputMessage('')
@@ -331,7 +349,9 @@ export default function ChatBot() {
 
         await callStreamingChatAPI(
           currentInput,
+          history,
           (event: StreamEvent) => {
+
             switch (event.type) {
               case 'tool_call':
                 // Show which tool is being called
@@ -382,22 +402,30 @@ export default function ChatBot() {
 
               case 'sources':
                 sources = event.sources || {}
+                console.log('[SSE] sources event received:', Object.keys(sources).length, 'sources, keys:', Object.keys(sources))
                 setMessages(prev => prev.map(msg =>
                   msg.id === streamingMessage.id ? {
                     ...msg,
                     sources: sources,
-                    all_sources: sources  // In the new system, sources are already filtered
+                    all_sources: sources
                   } : msg
                 ))
                 break
 
               case 'done':
-                setMessages(prev => prev.map(msg =>
-                  msg.id === streamingMessage.id ? {
-                    ...msg,
-                    isStreaming: false
-                  } : msg
-                ))
+                console.log('[SSE] done event, sources at this point:', Object.keys(sources).length)
+                setMessages(prev => {
+                  const updated = prev.map(msg =>
+                    msg.id === streamingMessage.id ? {
+                      ...msg,
+                      sources: sources,
+                      all_sources: sources,
+                      isStreaming: false
+                    } : msg
+                  )
+                  console.log('[SSE] final message sources:', updated.find(m => m.id === streamingMessage.id)?.sources ? Object.keys(updated.find(m => m.id === streamingMessage.id)!.sources!).length : 0)
+                  return updated
+                })
                 setCurrentToolCalls([])
                 break
             }
@@ -415,14 +443,15 @@ export default function ChatBot() {
             setCurrentStreamingMessage(null)
             setCurrentToolCalls([])
             setBackendStatus('offline')
-          }
+          },
+          selectedCountry
         )
 
         setCurrentStreamingMessage(null)
 
       } else {
         // Non-streaming mode
-        const response = await callChatAPI(currentInput)
+        const response = await callChatAPI(currentInput, history, selectedCountry)
 
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -504,6 +533,7 @@ export default function ChatBot() {
       currentConversationId={currentConversationId}
       onNewConversation={handleNewConversation}
       onLoadConversation={handleLoadConversation}
+      onCountryChange={setSelectedCountry}
     >
       {messages.length === 1 && messages[0].sender === 'bot' ?
         (<ChatHome

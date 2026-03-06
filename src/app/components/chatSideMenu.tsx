@@ -5,10 +5,11 @@ import { useEffect, useState } from 'react';
 
 // icons
 import { GoSidebarCollapse } from 'react-icons/go';
-import { FiHome, FiPlus } from 'react-icons/fi';
+import { FiHome, FiPlus, FiUploadCloud } from 'react-icons/fi';
 import { IoAnalyticsOutline, IoSettingsOutline, IoHomeOutline } from "react-icons/io5";
 import { FaRegCircleQuestion } from 'react-icons/fa6';
 import { LuWandSparkles } from "react-icons/lu";
+import { useRouter } from 'next/navigation';
 
 const NavItems = ({ icon, label, isCollapsed }: { icon: React.ReactNode, label: string, isCollapsed: boolean }) => {
     return (
@@ -57,6 +58,7 @@ const ChatSideMenu = ({
     onLoadConversation = () => { }
 }: ChatSideMenuProps) => {
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+    const router = useRouter();
 
     return (
         <nav
@@ -92,8 +94,16 @@ const ChatSideMenu = ({
                         <div onClick={onNewConversation}>
                             <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" isCollapsed={isCollapsed && !isMobile} />
                         </div>
+<<<<<<< HEAD
                         <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed && !isMobile} />
                         <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed && !isMobile} />
+=======
+                        <div onClick={() => router.push('/upload')}>
+                            <NavItems icon={<FiUploadCloud className="w-6 h-6 text-black" />} label="Upload Document" isCollapsed={isCollapsed} />
+                        </div>
+                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed} />
+                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed} />
+>>>>>>> 8b25f7a (feat: enhance chat functionality with country selection and multi-turn conversation support)
                     </ul>
                 </div>
 
