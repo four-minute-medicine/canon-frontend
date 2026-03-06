@@ -43,7 +43,7 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
 
     return (
-        <div className="flex flex-col items-center justify-start mt-15 md:h-full h-[55vh] border-t border-teal-light p-4">
+        <div className="flex flex-col items-center justify-start mt-10 md:h-full h-[55vh] border-t border-teal-light p-4">
             <div className="w-full space-y-8 overflow-y-auto md:max-h-[75vh] max-h-[55vh] px-10 custom-scrollbar">
                 {messages.map((msg) => {
                     const isUser = msg.sender !== "bot";
@@ -126,12 +126,12 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
                 {isResponding && (
                     <div className="flex w-full justify-start">
-                        <div className="max-w-[60%] rounded-2xl px-4 py-3 bg-white border border-[#e5e7eb] text-[#1E1E1E]">
-                            <div className="text-xs text-[#717182] mb-1">Medhi · typing…</div>
+                        <div className="max-w-[60%] rounded-2xl px-4 py-3 text-[#1E1E1E]">
+                            <div className="text-xs text-[#717182] mb-1">Canon · thinking…</div>
                             <div className="flex gap-1">
-                                <span className="w-2 h-2 rounded-full bg-[#007072] animate-pulse" />
-                                <span className="w-2 h-2 rounded-full bg-[#007072] animate-pulse delay-150" />
-                                <span className="w-2 h-2 rounded-full bg-[#007072] animate-pulse delay-300" />
+                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" />
+                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-150" />
+                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-300" />
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,8 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
             </div>
 
             {/* Chat Input */}
-                <div className="absolute bottom-10 center-0 flex items-end bg-white rounded-full px-10 py-4 w-full max-w-4xl">
+            <div className="absolute bottom-0 left-80 right-0 bg-[#F7F7F7] py-6 px-4 flex justify-center">
+                <div className="flex items-end bg-white rounded-full px-10 py-4 w-full max-w-4xl">
                     <textarea
                         placeholder={isResponding ? "Thinking..." : "Ask Anything..."}
                         className="w-full bg-transparent text-gray-700 placeholder-gray-400 resize-none outline-none border-none focus:ring-0 min-h-[40px] max-h-[120px] leading-6 py-2 custom-scrollbar"
@@ -166,7 +167,7 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                     {/* send button */}
                     <button
                         className={`flex items-center justify-center h-10 w-10 rounded-full transition-colors shrink-0 ml-1 mb-2
-                            ${inputMessage.trim() ?
+                        ${inputMessage.trim() ?
                                 "bg-black text-white hover:bg-gray-800"
                                 : "bg-gray-300 text-white cursor-not-allowed"
                             }`}
@@ -176,7 +177,8 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                         <HiArrowUp className="text-xl" />
                     </button>
                 </div>
-            
+            </div>
+
         </div>
     )
 }

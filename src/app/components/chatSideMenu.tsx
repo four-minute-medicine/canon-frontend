@@ -6,15 +6,19 @@ import { useEffect, useState } from 'react';
 // icons
 import { GoSidebarCollapse } from 'react-icons/go';
 import { FiHome, FiPlus } from 'react-icons/fi';
-import { IoAnalyticsOutline, IoSettingsOutline } from "react-icons/io5";
+import { IoAnalyticsOutline, IoSettingsOutline, IoHomeOutline } from "react-icons/io5";
 import { FaRegCircleQuestion } from 'react-icons/fa6';
 import { LuWandSparkles } from "react-icons/lu";
 
-const NavItems = ({ icon, label }: { icon: React.ReactNode, label: string }) => {
+const NavItems = ({ icon, label, isCollapsed }: { icon: React.ReactNode, label: string, isCollapsed: boolean }) => {
     return (
-        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-center gap-2">
+        <li className={`flex items-center px-3 py-1 rounded-lg cursor-pointer justify-center gap-2 ${isCollapsed ? "justify-center" : "justify-start"} relative group`}>
             {icon}
-            <span className="text-black">{label}</span>
+            {!isCollapsed && <span className={`text-black ${isCollapsed ? "hidden" : ""}`}>{label}</span>}
+            {/* tooltip */}
+            {isCollapsed && <span className="absolute left-25 transform -translate-x-1/2 top-0 hidden group-hover:block w-max px-4 py-4 text-sm text-[#1e1e1e] bg-gray-300 rounded-lg shadow-lg z-50">
+                {label}
+            </span>}
         </li>
     )
 };
@@ -24,36 +28,15 @@ const Divider = () => (
     <hr className="border-b-gray-600 opacity-20 w-full border-b" />
 );
 
-const ChatSideMenu = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+interface ChatSideMenuProps {
+    isCollapsed: boolean;
+    isMobile: boolean;
+    isTablet: boolean;
+    setIsCollapsed: (isCollapsed: boolean) => void;
+}
+
+const ChatSideMenu = ({ isCollapsed, isMobile, isTablet, setIsCollapsed }: ChatSideMenuProps) => {
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
-
-    const useMediaQuery = (query: string): boolean => {
-        const [matches, setMatches] = useState(false);
-
-        useEffect(() => {
-            if (typeof window === "undefined" || !window.matchMedia) {
-                return;
-            }
-            const media = window.matchMedia(query);
-            if (media.matches !== matches) {
-                setMatches(media.matches);
-            }
-            const listener = () => setMatches(media.matches);
-            media.addEventListener
-                ? media.addEventListener("change", listener)
-                : media.addListener(listener);
-            return () =>
-                media.removeEventListener
-                    ? media.removeEventListener("change", listener)
-                    : media.removeListener(listener);
-        }, [matches, query]);
-
-        return matches;
-    };
-
-    const isMobile = useMediaQuery("(max-width: 768px)");
-    const isTablet = useMediaQuery("(max-width: 1024px)");
 
     return (
         <nav
@@ -86,79 +69,79 @@ const ChatSideMenu = () => {
             {/* menu items */}
             <div className="flex flex-col w-full flex-1 overflow-hidden">
                 <div className="flex items-start flex-col gap-4 justify-between px-4 py-2 shrink-0">
-                    <ul className="flex flex-col gap-2 items-start">
-                        <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" />
-                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" />
-                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" />
+                    <ul className={`flex flex-col gap-2 items-start ${isCollapsed ? "items-center mt-5" : ""}`}>
+                        <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" isCollapsed={isCollapsed} />
+                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed} />
+                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed} />
                     </ul>
                 </div>
 
                 {/* divider */}
-                <div className="py-2 mx-4 shrink-0">
+                {!isCollapsed && (<div className="py-2 mx-4 shrink-0">
                     <Divider />
-                </div>
+                </div>)}
 
                 {/* chat history */}
-                <div className="flex flex-col gap-2 items-start flex-1 overflow-hidden">
+               {!isCollapsed && (<div className="flex flex-col gap-2 items-start flex-1 overflow-hidden">
                     <h2 className="text-lg font-bold text-black mx-5 shrink-0">CHAT HISTORY</h2>
-                    <ul className="flex flex-col gap-1 px-2 w-full mt-1 mb-2 text-black overflow-y-auto custom-scrollbar flex-1">
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                    <ul className="flex flex-col gap-1 px-5 w-full mt-1 mb-2 text-black overflow-y-auto custom-scrollbar flex-1">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 1
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 2
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 3
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 4
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 5
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 6
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 1
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 2
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 3
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 4
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 5
                         </li>
-                        <li className="flex items-center px-3 py-1 rounded-lg cursor-pointer justify-start gap-2">
+                        <li className="flex items-center px-3 py-3 rounded-lg cursor-pointer justify-start gap-2 truncate">
                             Chat 6
                         </li>
                     </ul>
-                </div>
+                </div>)}
             </div>
 
             {/* request a feature button */}
-            <button className="flex items-center px-3 py-2 mx-4 rounded-lg cursor-pointer justify-between bg-white text-black shrink-0">
+            {!isCollapsed && (<button className="flex items-center px-3 py-2 mx-4 rounded-lg cursor-pointer justify-between bg-white text-black shrink-0">
                 <div className="flex items-center gap-1">
                     <LuWandSparkles className="w-4 h-4" />
                     <span className="font-medium">Request a feature</span>
                 </div>
 
                 <FiPlus className="w-4 h-4" />
-            </button>
+            </button>)}
 
             {/* divider */}
-            <div className="py-2 mx-4 shrink-0">
+            {!isCollapsed && <div className="py-2 mx-4 shrink-0">
                 <Divider />
-            </div>
+            </div>}
 
-            {/* buy tokens card */}
-            <div className="flex bg-white rounded-lg px-4 py-4 flex-col gap-1 mb-5 mx-4 text-black shrink-0">
+            {/* buy tokens card if not collapsed */}
+            {!isCollapsed && (<div className="flex bg-white rounded-lg px-4 py-4 flex-col gap-1 mb-5 mx-4 text-black shrink-0">
                 <div className="flex items-center justify-between">
                     <span className="font-medium">
                         Available tokens
@@ -197,7 +180,16 @@ const ChatSideMenu = () => {
                 >
                     Buy More
                 </button>
-            </div>
+            </div>)}
+
+            {/* buy token round button if collapsed -tooltip to buy tokens */}
+            {isCollapsed && 
+            (<button className="flex items-center p-2 mx-4 rounded-full cursor-pointer justify-center mb-10 bg-white text-black shrink-0 relative group">
+                <FiPlus className="w-6 h-6 hover:scale-105 transition-all duration-200" />
+                <div className="absolute left-25 transform -translate-x-1/2 top-0 hidden group-hover:block w-max px-4 py-4 text-sm text-[#1e1e1e] bg-gray-300 rounded-lg shadow-lg z-10">
+                    <span>Buy Tokens</span>
+                </div>
+            </button>)}
         </nav>
     )
 }
