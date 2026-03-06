@@ -62,7 +62,7 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                                 >
                                     <div
                                         className={`max-w-[80%] rounded-2xl px-4 py-3 ${isUser
-                                            ? "bg-white text-black justify-end"
+                                            ? " text-black justify-end"
                                             : introMessage ? " text-black justify-start" : "text-black justify-start"
                                             }`}
                                     >
@@ -71,10 +71,10 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                                         </div>
 
                                         {/* timestamp */}
-                                        {/* <div className="text-xs text-[#717182] mb-1">
+                                        <div className="text-xs text-[#717182] mb-1">
                                         {isUser ? "You" : ""}{" "}
-                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}
-                                    </div> */}
+                                        {/* {new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })} */}
+                                    </div>
                                     </div>
                                 </div>
 

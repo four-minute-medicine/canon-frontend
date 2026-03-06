@@ -48,6 +48,11 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
                 ))}
             </div>
 
+            {(!sources || Object.keys(sources).length === 0) && (toolCalls && toolCalls.length > 0) &&
+             (<div className="text-gray-600 mt-2">
+                No sources available for this response.
+            </div>)}
+
             {/* sources */}
             <div className="space-y-3">
                 {sources && Object.entries(sources).map(([sourceId, source], index) => (

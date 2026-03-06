@@ -6,9 +6,11 @@ import { GoSidebarCollapse } from "react-icons/go";
 interface ChatHeaderProps {
     isMobile: boolean;
     isTablet: boolean;
+    isCollapsed: boolean;
+    setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
-const ChatHeader = ({ isMobile, isTablet }: { isMobile: boolean, isTablet: boolean }) => {
+const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed }: ChatHeaderProps) => {
     const router = useRouter();
     const [isCountryMenuOpen, setIsCountryMenuOpen] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState(isMobile ? "Country" : "Select Country");
@@ -22,7 +24,7 @@ const ChatHeader = ({ isMobile, isTablet }: { isMobile: boolean, isTablet: boole
         <header className="sticky top-0 z-30 h-20 flex items-center justify-between px-6 space-x-10 bg-[#F7F7F7]">
 
             {/* mobile menu button */}
-            <button className="md:hidden">
+            <button className="md:hidden" onClick={() => setIsCollapsed(!isCollapsed)}>
                 <GoSidebarCollapse className="w-6 h-6 text-black" />
             </button>
 
@@ -44,12 +46,12 @@ const ChatHeader = ({ isMobile, isTablet }: { isMobile: boolean, isTablet: boole
 
                 {/* country menu */}
                 {isCountryMenuOpen && (
-                    <div className="absolute top-15 right-30 max-w-2xl p-10 bg-white text-black rounded-lg shadow-md">
+                    <div className="absolute top-15 sm:center-0 max-w-3xl p-10 flex flex-col bg-white text-black rounded-lg shadow-md">
                         <h1 className="text-3xl font-semibold text-black text-center mb-8">
                             Choose Your Country
                         </h1>
 
-                        <div className="flex sm:flex-row h-[60vh] sm:h-auto flex-col items-center justify-between overflow-y-auto custom-scrollbar">
+                        <div className="flex sm:flex-row h-[60vh] sm:h-auto flex-col items-center justify-center overflow-y-auto custom-scrollbar">
                             {/* left side */}
                             <div className="flex flex-col gap-6 w-1/2">
                                 {/* AFRICA */}

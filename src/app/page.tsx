@@ -54,6 +54,13 @@ interface StreamEvent {
   note?: string
 }
 
+interface chatConversation {
+  id: string
+  messages: Message[]
+  created_at: Date
+  updated_at: Date
+}
+
 // API configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
@@ -86,7 +93,7 @@ const callChatAPI = async (message: string): Promise<ChatResponse> => {
 
 // Streaming agentic chat API
 const callStreamingChatAPI = async (
-  message: string, 
+  message: string,
   onEvent: (event: StreamEvent) => void,
   onError: (error: Error) => void
 ): Promise<void> => {
@@ -160,10 +167,74 @@ export default function ChatBot() {
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState<Message | null>(null)
   const [currentToolCalls, setCurrentToolCalls] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
+  const [chatConversations, setChatConversations] = useState<chatConversation[]>([])
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  // Load chat conversations from localStorage on mount
+  useEffect(() => {
+    const storedConversations = localStorage.getItem('chatConversations')
+    if (storedConversations) {
+      try {
+        const parsed = JSON.parse(storedConversations)
+        // Convert date strings back to Date objects
+        const conversations = parsed.map((conv: any) => ({
+          ...conv,
+          created_at: new Date(conv.created_at),
+          updated_at: new Date(conv.updated_at),
+          messages: conv.messages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+        }))
+        setChatConversations(conversations)
+      } catch (error) {
+        console.error('Failed to load conversations:', error)
+      }
+    }
+  }, [])
+
+  // Save current conversation to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 1) { // Only save if there are actual messages beyond the intro
+      const currentConv = chatConversations.find(conv => conv.id === currentConversationId)
+
+      if (currentConv) {
+        // Update existing conversation
+        const updatedConversations = chatConversations.map(conv =>
+          conv.id === currentConversationId
+            ? { ...conv, messages, updated_at: new Date() }
+            : conv
+        )
+        setChatConversations(updatedConversations)
+        localStorage.setItem('chatConversations', JSON.stringify(updatedConversations))
+      } else if (messages.length > 1) {
+        // Create new conversation
+        const newConv: chatConversation = {
+          id: Date.now().toString(),
+          messages,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+        setCurrentConversationId(newConv.id)
+        const updatedConversations = [newConv, ...chatConversations]
+        setChatConversations(updatedConversations)
+        localStorage.setItem('chatConversations', JSON.stringify(updatedConversations))
+      }
+    }
+  }, [messages])
+
+  // Clear localStorage when user leaves or refreshes
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('chatConversations')
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
 
   useEffect(() => {
     scrollToBottom()
@@ -173,6 +244,29 @@ export default function ChatBot() {
   useEffect(() => {
     checkBackendHealth()
   }, [])
+
+  // Handler to start a new conversation
+  const handleNewConversation = () => {
+    setMessages([
+      {
+        id: '1',
+        content: "Hello! I'm Project X, an intelligent medical research assistant. I can investigate your medical questions using advanced search tools. Ask me anything!",
+        sender: 'bot',
+        timestamp: new Date(),
+      },
+    ])
+    setCurrentConversationId(null)
+    setInputMessage('')
+  }
+
+  // Handler to load a previous conversation
+  const handleLoadConversation = (conversationId: string) => {
+    const conversation = chatConversations.find(conv => conv.id === conversationId)
+    if (conversation) {
+      setMessages(conversation.messages)
+      setCurrentConversationId(conversationId)
+    }
+  }
 
   const checkBackendHealth = async () => {
     try {
@@ -222,7 +316,7 @@ export default function ChatBot() {
 
         let answerContent = ''
         let sources: Record<string, Source> = {}
-        let toolCalls: Array<{tool: string, args: any, result_preview: string}> = []
+        let toolCalls: Array<{ tool: string, args: any, result_preview: string }> = []
 
         await callStreamingChatAPI(
           currentInput,
@@ -243,7 +337,7 @@ export default function ChatBot() {
                 if (toolCalls.length > 0) {
                   toolCalls[toolCalls.length - 1].result_preview = event.preview || ''
                 }
-                setMessages(prev => prev.map(msg => 
+                setMessages(prev => prev.map(msg =>
                   msg.id === streamingMessage.id ? {
                     ...msg,
                     tool_calls: [...toolCalls]
@@ -254,7 +348,7 @@ export default function ChatBot() {
               case 'thinking':
                 // Show AI thinking process
                 if (event.content) {
-                  setMessages(prev => prev.map(msg => 
+                  setMessages(prev => prev.map(msg =>
                     msg.id === streamingMessage.id ? {
                       ...msg,
                       content: msg.content + `\n\n**Thinking:** ${event.content}`
@@ -266,7 +360,7 @@ export default function ChatBot() {
               case 'answer':
                 if (event.content) {
                   answerContent += event.content
-                  setMessages(prev => prev.map(msg => 
+                  setMessages(prev => prev.map(msg =>
                     msg.id === streamingMessage.id ? {
                       ...msg,
                       content: answerContent
@@ -277,7 +371,7 @@ export default function ChatBot() {
 
               case 'sources':
                 sources = event.sources || {}
-                setMessages(prev => prev.map(msg => 
+                setMessages(prev => prev.map(msg =>
                   msg.id === streamingMessage.id ? {
                     ...msg,
                     sources: sources,
@@ -287,7 +381,7 @@ export default function ChatBot() {
                 break
 
               case 'done':
-                setMessages(prev => prev.map(msg => 
+                setMessages(prev => prev.map(msg =>
                   msg.id === streamingMessage.id ? {
                     ...msg,
                     isStreaming: false
@@ -318,7 +412,7 @@ export default function ChatBot() {
       } else {
         // Non-streaming mode
         const response = await callChatAPI(currentInput)
-        
+
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           content: response.reply,
@@ -337,12 +431,12 @@ export default function ChatBot() {
       if (backendStatus !== 'online') {
         setBackendStatus('online')
       }
-      
+
     } catch (error) {
       // Create error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: backendStatus === 'offline' 
+        content: backendStatus === 'offline'
           ? "I'm sorry, I can't connect to the backend service. Please make sure the API server is running on http://127.0.0.1:8000"
           : "I apologise, but I encountered an error while processing your request. Please try again.",
         sender: 'bot',
@@ -379,58 +473,62 @@ export default function ChatBot() {
 
   const StatusIndicator = () => (
     <div className="flex items-center space-x-2">
-      <div className={`w-2 h-2 rounded-full ${
-        backendStatus === 'online' ? 'bg-green-400 animate-pulse' :
-        backendStatus === 'offline' ? 'bg-red-400' :
-        'bg-yellow-400 animate-pulse'
-      }`} />
+      <div className={`w-2 h-2 rounded-full ${backendStatus === 'online' ? 'bg-green-400 animate-pulse' :
+          backendStatus === 'offline' ? 'bg-red-400' :
+            'bg-yellow-400 animate-pulse'
+        }`} />
       <span className="text-xs text-gray-400">
         {backendStatus === 'online' ? 'Connected to Backend' :
-         backendStatus === 'offline' ? 'Backend Offline' :
-         'Checking connection...'}
+          backendStatus === 'offline' ? 'Backend Offline' :
+            'Checking connection...'}
       </span>
     </div>
   )
   console.log("Messages", messages);
 
   return (
-    
-    <ChatLayout>
-      {messages.length === 1 && messages[0].sender === 'bot' ? 
-      (<ChatHome 
-        inputMessage={inputMessage}
-        setInputMessage={setInputMessage}
-        handleSendMessage={handleSendMessage} 
-        handleKeyPress={handleKeyPress} 
+
+    <ChatLayout
+      chatConversations={chatConversations}
+      currentConversationId={currentConversationId}
+      onNewConversation={handleNewConversation}
+      onLoadConversation={handleLoadConversation}
+    >
+      {messages.length === 1 && messages[0].sender === 'bot' ?
+        (<ChatHome
+          inputMessage={inputMessage}
+          setInputMessage={setInputMessage}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
         />) :
-         <ActiveChat
+        <ActiveChat
           inputMessage={inputMessage}
           setInputMessage={setInputMessage}
           messages={messages.map(msg => ({
-          id: msg.id,
-          message: msg.content,
-          sender: msg.sender,
-          timestamp: msg.timestamp,
-          sources: msg.sources || {},
-          all_sources: msg.all_sources,
-          tool_calls: msg.tool_calls || [],
-          rounds: msg.rounds || 0,
-          isStreaming: msg.isStreaming || false,
-          error: msg.error || '',
-        }))} 
-        isResponding={isTyping} 
-        handleKeyPress={handleKeyPress}
-        handleSendMessage={handleSendMessage} />}
+            id: msg.id,
+            message: msg.content,
+            sender: msg.sender,
+            timestamp: msg.timestamp,
+            sources: msg.sources || {},
+            all_sources: msg.all_sources,
+            tool_calls: msg.tool_calls || [],
+            rounds: msg.rounds || 0,
+            isStreaming: msg.isStreaming || false,
+            error: msg.error || '',
+          }))}
+          isResponding={isTyping}
+          handleKeyPress={handleKeyPress}
+          handleSendMessage={handleSendMessage} />}
 
-        {/* backend status indicator */}
-        {backendStatus === 'offline' && (
-            <div className="mt-3 p-3 bg-red-600/10 border border-red-600/30 rounded-lg flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 text-red-400" />
-              <span className="text-sm text-red-400">
-                Backend service is offline. Please ensure your FastAPI server is running on port 8000.
-              </span>
-            </div>
-          )}
+      {/* backend status indicator */}
+      {backendStatus === 'offline' && (
+        <div className="mt-3 p-3 bg-red-600/10 border border-red-600/30 rounded-lg flex items-center space-x-2">
+          <AlertCircle className="w-4 h-4 text-red-400" />
+          <span className="text-sm text-red-400">
+            Backend service is offline. Please ensure your FastAPI server is running on port 8000.
+          </span>
+        </div>
+      )}
     </ChatLayout>
 
 
@@ -533,7 +631,7 @@ export default function ChatBot() {
     //                     return part
     //                   })}
     //                 </div>
-                    
+
     //                 {/* Show tool calls if available */}
     //                 {message.tool_calls && message.tool_calls.length > 0 && (
     //                   <div className="mt-3 p-3 bg-gray-900 rounded-lg border-l-4 border-green-500">
@@ -671,12 +769,12 @@ export default function ChatBot() {
     //             <Zap className="w-4 h-4" />
     //             <span>Live Stream</span>
     //           </button>
-              
+
     //           <span className="text-xs text-gray-400">
     //             {useStreaming ? 'Watch AI research in real-time' : 'Get complete results instantly'}
     //           </span>
     //         </div>
-            
+
     //         {/* Show active tool calls during streaming */}
     //         {currentToolCalls.length > 0 && (
     //           <div className="flex items-center space-x-2">
