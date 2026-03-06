@@ -7,6 +7,7 @@ import CanonResponseView from "./canonResponseView";
 interface ActiveChatProps {
     messages: Message[];
     isResponding: boolean;
+    isMobile: boolean;
     inputMessage: string;
     setInputMessage: (value: string) => void;
     handleSendMessage: () => void;
@@ -37,7 +38,7 @@ interface Source {
     keyword_matches?: number;
 }
 
-const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleKeyPress, inputMessage, setInputMessage }: ActiveChatProps) => {
+const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleKeyPress, inputMessage, setInputMessage, isMobile }: ActiveChatProps) => {
     // console.log("messages", messages);
     const endRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +114,7 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                     } else {
 
                         return <CanonResponseView
+                            isMobile={isMobile}
                             response={msg.message}
                             messageId={msg.id}
                             sources={msg.sources || {}}

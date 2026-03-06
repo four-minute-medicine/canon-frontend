@@ -72,7 +72,7 @@ const ChatSideMenu = ({
         `}
         >
             {/* logo & toggle button */}
-            <header className={`sticky top-0 z-30 flex items-center ${isCollapsed ? "justify-center py-3" : "gap-5 px-6 py-3"
+            <header className={`sticky top-0 z-30 flex items-center ${isCollapsed && !isMobile ? "justify-center py-3" : "gap-5 px-6 py-3"
                 }`}>
                 {!isCollapsed && <img src={canonLogo.src} alt="Canon Logo" className={`object-contain mt-2 ${isMobile ? "w-1/2" : "w-full"}`} />}
                 {isCollapsed && !isMobile ? <GoSidebarCollapse
@@ -90,10 +90,10 @@ const ChatSideMenu = ({
                 <div className="flex items-start flex-col gap-4 justify-between px-4 py-2 shrink-0">
                     <ul className={`flex flex-col gap-2 items-start ${isCollapsed ? "items-center mt-5" : ""}`}>
                         <div onClick={onNewConversation}>
-                            <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" isCollapsed={isCollapsed} />
+                            <NavItems icon={<FiHome className="w-6 h-6 text-black" />} label="New question" isCollapsed={isCollapsed && !isMobile} />
                         </div>
-                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed} />
-                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed} />
+                        <NavItems icon={<IoAnalyticsOutline className="w-6 h-6 text-black" />} label="Trends" isCollapsed={isCollapsed && !isMobile} />
+                        <NavItems icon={<IoSettingsOutline className="w-6 h-6 text-black" />} label="Settings" isCollapsed={isCollapsed && !isMobile} />
                     </ul>
                 </div>
 
@@ -185,7 +185,7 @@ const ChatSideMenu = ({
             </div>)}
 
             {/* buy token round button if collapsed -tooltip to buy tokens */}
-            {isCollapsed &&
+            {isCollapsed && !isMobile &&
                 (<button className="flex items-center p-2 mx-4 rounded-full cursor-pointer justify-center mb-10 bg-white text-black shrink-0 relative group">
                     <FiPlus className="w-6 h-6 hover:scale-105 transition-all duration-200" />
                     <div className="absolute left-25 transform -translate-x-1/2 top-0 hidden group-hover:block w-max px-4 py-4 text-sm text-[#1e1e1e] bg-gray-300 rounded-lg shadow-lg z-10">

@@ -22,9 +22,10 @@ interface CanonResponseViewProps {
         args: any;
         result_preview: string;
     }>;
+    isMobile: boolean;
 }
 
-const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls }: CanonResponseViewProps) => {
+const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls, isMobile }: CanonResponseViewProps) => {
     const [activeTab, setActiveTab] = useState<'answer' | 'sources' | 'excerpts'>('answer');
 
 
@@ -38,7 +39,7 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
                 </div> */}
 
                 {/* tabs - Answer, sources, excerpts - desktop view */}
-                <div className="flex items-center flex-col md:flex-row lg:flex-row gap-3 mb-4 md:mb-0 md:gap-4 lg:gap-4">
+                {!isMobile && (<div className="flex items-center flex-col md:flex-row lg:flex-row gap-3 mb-4 md:mb-0 md:gap-4 lg:gap-4">
 
                     {/* Answer */}
                     <div className="rounded-lg transition">
@@ -90,7 +91,7 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
                             />
                         </button>
                     </div>
-                </div>
+                </div>)}
 
                 {/* Tab Content Sections - desktop view */}
                 <div className="mt-6">

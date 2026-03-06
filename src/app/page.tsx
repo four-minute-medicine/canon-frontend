@@ -167,11 +167,22 @@ export default function ChatBot() {
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState<Message | null>(null)
   const [currentToolCalls, setCurrentToolCalls] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [chatConversations, setChatConversations] = useState<chatConversation[]>([])
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
+  const [chatConversations, setChatConversations] = useState<chatConversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return;
+    }
+    const media = window.matchMedia("(max-width: 768px)");
+    if (isMobile !== media.matches) {
+      setIsMobile(media.matches);
+    }
+  }, [isMobile]);
 
   // Load chat conversations from localStorage on mount
   useEffect(() => {
@@ -502,6 +513,7 @@ export default function ChatBot() {
           handleKeyPress={handleKeyPress}
         />) :
         <ActiveChat
+          isMobile={isMobile}
           inputMessage={inputMessage}
           setInputMessage={setInputMessage}
           messages={messages.map(msg => ({
