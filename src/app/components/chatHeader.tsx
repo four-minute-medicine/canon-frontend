@@ -51,43 +51,40 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
     }
 
     return (
-        <header className="sticky top-0 z-30 h-20 flex items-center justify-between px-6 space-x-10 bg-[#F7F7F7]">
+        <header className="sticky top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-black/5 bg-[#F7F7F7] px-4 sm:px-6">
 
             {/* mobile menu button */}
-            <button className="md:hidden" onClick={() => setIsCollapsed(!isCollapsed)}>
+            <button className={`${isTablet ? "inline-flex" : "invisible"} shrink-0`} onClick={() => setIsCollapsed(!isCollapsed)}>
                 <GoSidebarCollapse className="w-6 h-6 text-black" />
             </button>
 
-            {/* desktop menu button */}
-            <button className="hidden md:block">
-                <GoSidebarCollapse className="w-6 h-6 text-[#F7F7F7]" />
-            </button>
-
             {/* left side */}
-            <div className="flex items-center justify-end gap-10">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-4 lg:gap-6">
                 {/* country selector */}
-                <div className="flex items-center w-fit justify-between space-x-5 px-6 py-2 text-black rounded-full bg-white"
+                <button
+                    type="button"
+                    className="flex min-w-0 max-w-[180px] items-center justify-between gap-3 rounded-full bg-white px-4 py-2 text-black sm:max-w-none sm:px-6"
                     onClick={() =>
                         setIsCountryMenuOpen(!isCountryMenuOpen)
                     }>
-                    <span className="text-lg font-medium">{displayLabel}</span>
+                    <span className="truncate text-sm font-medium sm:text-base">{displayLabel}</span>
                     <IoIosArrowDown className="w-4 h-4" />
-                </div>
+                </button>
 
                 {/* country menu */}
                 {isCountryMenuOpen && (
-                    <div className="absolute top-15 sm:center-0 max-w-3xl p-10 flex flex-col bg-white text-black rounded-lg shadow-md">
-                        <h1 className="text-3xl font-semibold text-black text-center mb-8">
+                    <div className="absolute inset-x-4 top-full mt-3 max-h-[75vh] overflow-hidden rounded-2xl bg-white p-5 text-black shadow-md sm:left-auto sm:right-6 sm:w-[min(90vw,760px)] sm:p-8">
+                        <h1 className="mb-6 text-center text-2xl font-semibold text-black sm:mb-8 sm:text-3xl">
                             Choose Your Country
                         </h1>
 
-                        <div className="flex sm:flex-row h-[60vh] sm:h-auto flex-col items-center justify-center overflow-y-auto custom-scrollbar">
+                        <div className="custom-scrollbar flex h-[55vh] flex-col justify-start gap-6 overflow-y-auto sm:h-auto sm:flex-row sm:items-start sm:justify-center">
                             {/* left side */}
-                            <div className="flex flex-col gap-6 w-1/2">
+                            <div className="flex w-full flex-col gap-6 sm:w-1/2">
                                 {/* AFRICA */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">AFRICA</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("ZA")}>
                                             <span>🇿🇦</span>
@@ -109,7 +106,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                                 {/* AUSTRALIA */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">AUSTRALIA</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("AU")}>
                                             <span>🇦🇺</span>
@@ -126,7 +123,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                                 {/* NORTH AMERICA */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">NORTH AMERICA</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("CA")}>
                                             <span>🇨🇦</span>
@@ -143,7 +140,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                                 {/* SOUTH AMERICA */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">SOUTH AMERICA</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("BR")}>
                                             <span>🇧🇷</span>
@@ -159,11 +156,11 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                             </div>
 
                             {/* right side */}
-                            <div className="flex flex-col gap-6 w-1/2">
+                            <div className="flex w-full flex-col gap-6 sm:w-1/2">
                                 {/* ASIA */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">ASIA</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("IN")}>
                                             <span>🇮🇳</span>
@@ -200,7 +197,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                                 {/* EUROPE */}
                                 <div>
                                     <h2 className="text-sm font-bold text-black mb-3">EUROPE</h2>
-                                    <ul className="flex flex-col gap-2 sm:w-100 w-full">
+                                    <ul className="flex w-full flex-col gap-2">
                                         <li className="flex items-center gap-2 text-black cursor-pointer hover:text-gray-600"
                                             onClick={() => handleCountryClick("GB")}>
                                             <span>🇬🇧</span>
@@ -240,7 +237,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
 
                 {/* login button */}
                 <span
-                    className="cursor-pointer text-lg font-medium relative group text-black"
+                    className="relative hidden cursor-pointer text-sm font-medium text-black group sm:inline-block sm:text-base"
                     onClick={() => router.push("/login")}
                 >
                     {isMobile ? "Login" : "Log In"}
@@ -249,7 +246,7 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
 
                 {/* try it free button */}
                 <button
-                    className={`px-6 py-3 bg-[#1e1e1e] hover:bg-[#2d2d2d] text-white font-medium transition-colors duration-200 rounded-3xl shadow-sm ${isMobile ? "text-sm px-1 py-2" : ""}`}
+                    className="rounded-3xl bg-[#1e1e1e] px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-[#2d2d2d] sm:px-5 sm:py-3"
                     onClick={() => router.push("/signup")}
                 >
                     {isMobile ? "Try it" : "Try it Free"}

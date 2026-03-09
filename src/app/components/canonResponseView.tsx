@@ -19,7 +19,7 @@ interface CanonResponseViewProps {
     allSources: Record<string, Source>;
     toolCalls: Array<{
         tool: string;
-        args: any;
+        args: Record<string, unknown> | null;
         result_preview: string;
     }>;
     isMobile: boolean;
@@ -30,16 +30,16 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
 
 
     return (
-        <div className="flex flex-col items-start justify-center text-black rounded-3xl py-5 w-full max-w-none md:mx-auto lg:mx-auto">
+        <div className="flex w-full max-w-none flex-col items-start justify-center rounded-3xl py-5 text-black md:mx-auto lg:mx-auto">
             <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3`}
+                className="w-full max-w-full rounded-2xl px-1 py-3 sm:max-w-[90%] sm:px-4"
             >
                 {/* <div className="leading-relaxed whitespace-pre-wrap wrap-break-word">
                     {response}
                 </div> */}
 
-                {/* tabs - Answer, sources, excerpts - desktop view */}
-                {!isMobile && (<div className="flex items-center flex-col md:flex-row lg:flex-row gap-3 mb-4 md:mb-0 md:gap-4 lg:gap-4">
+                {/* tabs */}
+                <div className={`mb-4 flex flex-wrap items-center gap-2 ${isMobile ? "justify-start" : ""} sm:mb-0 sm:gap-4`}>
 
                     {/* Answer */}
                     <div className="rounded-lg transition">
@@ -91,7 +91,7 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
                             />
                         </button>
                     </div>
-                </div>)}
+                </div>
 
                 {/* Tab Content Sections - desktop view */}
                 <div className="mt-6">

@@ -1,5 +1,4 @@
 import { Zap } from 'lucide-react';
-import MarkdownRenderer from '@/app/utils/markdownRenderer';
 
 interface Source {
     text: string;
@@ -15,7 +14,7 @@ interface CanonSourcesProps {
     sources?: Record<string, Source>;
     toolCalls?: Array<{
         tool: string;
-        args: any;
+        args: Record<string, unknown> | null;
         result_preview: string;
     }>;
 }
