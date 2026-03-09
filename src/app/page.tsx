@@ -22,32 +22,30 @@ interface Message {
   timestamp: Date
   sources?: Record<string, Source>  // sourceId -> Source mapping
   all_sources?: Record<string, Source>
-  tool_calls?: Array<{
-    tool: string
-    args: any
-    result_preview: string
-  }>
+  tool_calls?: ToolCall[]
   rounds?: number
   isStreaming?: boolean
   error?: string
+}
+
+interface ToolCall {
+  tool: string
+  args: Record<string, unknown> | null
+  result_preview: string
 }
 
 interface ChatResponse {
   reply: string
   sources: Record<string, Source>
   all_sources: Record<string, Source>
-  tool_calls: Array<{
-    tool: string
-    args: any
-    result_preview: string
-  }>
+  tool_calls: ToolCall[]
   rounds: number
 }
 
 interface StreamEvent {
   type: 'tool_call' | 'tool_result' | 'thinking' | 'answer' | 'sources' | 'done'
   tool?: string
-  args?: any
+  args?: Record<string, unknown> | null
   preview?: string
   content?: string
   sources?: Record<string, Source>
@@ -59,6 +57,16 @@ interface chatConversation {
   messages: Message[]
   created_at: Date
   updated_at: Date
+}
+
+interface StoredMessage extends Omit<Message, 'timestamp'> {
+  timestamp: string
+}
+
+interface StoredConversation extends Omit<chatConversation, 'created_at' | 'updated_at' | 'messages'> {
+  created_at: string
+  updated_at: string
+  messages: StoredMessage[]
 }
 
 // API configuration
@@ -187,24 +195,39 @@ export default function ChatBot() {
     if (typeof window === "undefined" || !window.matchMedia) {
       return;
     }
+
     const media = window.matchMedia("(max-width: 768px)");
-    if (isMobile !== media.matches) {
-      setIsMobile(media.matches);
+    const updateIsMobile = () => setIsMobile(media.matches);
+
+    updateIsMobile();
+
+    if (media.addEventListener) {
+      media.addEventListener("change", updateIsMobile)
+    } else {
+      media.addListener(updateIsMobile)
     }
-  }, [isMobile]);
+
+    return () => {
+      if (media.removeEventListener) {
+        media.removeEventListener("change", updateIsMobile)
+      } else {
+        media.removeListener(updateIsMobile)
+      }
+    };
+  }, []);
 
   // Load chat conversations from localStorage on mount
   useEffect(() => {
     const storedConversations = localStorage.getItem('chatConversations')
     if (storedConversations) {
       try {
-        const parsed = JSON.parse(storedConversations)
+        const parsed = JSON.parse(storedConversations) as StoredConversation[]
         // Convert date strings back to Date objects
-        const conversations = parsed.map((conv: any) => ({
+        const conversations = parsed.map((conv) => ({
           ...conv,
           created_at: new Date(conv.created_at),
           updated_at: new Date(conv.updated_at),
-          messages: conv.messages.map((msg: any) => ({
+          messages: conv.messages.map((msg) => ({
             ...msg,
             timestamp: new Date(msg.timestamp)
           }))
@@ -219,30 +242,34 @@ export default function ChatBot() {
   // Save current conversation to localStorage whenever messages change
   useEffect(() => {
     if (messages.length > 1) { // Only save if there are actual messages beyond the intro
-      const currentConv = chatConversations.find(conv => conv.id === currentConversationId)
+      setChatConversations(prevConversations => {
+        const activeConversationId = currentConversationId ?? Date.now().toString()
+        const existingConversation = prevConversations.find(conv => conv.id === activeConversationId)
 
-      if (currentConv) {
-        // Update existing conversation
-        const updatedConversations = chatConversations.map(conv =>
-          conv.id === currentConversationId
-            ? { ...conv, messages, updated_at: new Date() }
-            : conv
-        )
-        setChatConversations(updatedConversations)
+        const updatedConversations = existingConversation
+          ? prevConversations.map(conv =>
+              conv.id === activeConversationId
+                ? { ...conv, messages, updated_at: new Date() }
+                : conv
+            )
+          : [
+              {
+                id: activeConversationId,
+                messages,
+                created_at: new Date(),
+                updated_at: new Date()
+              },
+              ...prevConversations
+            ]
+
         localStorage.setItem('chatConversations', JSON.stringify(updatedConversations))
-      } else if (messages.length > 1) {
-        // Create new conversation
-        const newConv: chatConversation = {
-          id: Date.now().toString(),
-          messages,
-          created_at: new Date(),
-          updated_at: new Date()
+
+        if (currentConversationId !== activeConversationId) {
+          setCurrentConversationId(activeConversationId)
         }
-        setCurrentConversationId(newConv.id)
-        const updatedConversations = [newConv, ...chatConversations]
-        setChatConversations(updatedConversations)
-        localStorage.setItem('chatConversations', JSON.stringify(updatedConversations))
-      }
+
+        return updatedConversations
+      })
     }
   }, [messages])
 
@@ -345,7 +372,7 @@ export default function ChatBot() {
 
         let answerContent = ''
         let sources: Record<string, Source> = {}
-        let toolCalls: Array<{ tool: string, args: any, result_preview: string }> = []
+        const toolCalls: ToolCall[] = []
 
         await callStreamingChatAPI(
           currentInput,
@@ -358,7 +385,7 @@ export default function ChatBot() {
                 setCurrentToolCalls(prev => [...prev, `${event.tool}(${JSON.stringify(event.args)})`])
                 toolCalls.push({
                   tool: event.tool || '',
-                  args: event.args,
+                  args: event.args ?? null,
                   result_preview: ''
                 })
                 break
