@@ -14,9 +14,15 @@ interface CanonExcerptsProps {
 }
 
 const CanonExcerpts = ({ allSources }: CanonExcerptsProps) => {
+    const sourceIds = Object.keys(allSources || {});
+    const citationNumbers = sourceIds.reduce<Record<string, number>>((acc, sourceId, index) => {
+        acc[sourceId] = index + 1;
+        return acc;
+    }, {});
+
     if (!allSources || Object.keys(allSources).length === 0) {
         return (
-            <div className="text-gray-600">
+            <div className="text-sm text-[#666666]">
                 No excerpts available for this response.
             </div>
         );
@@ -24,8 +30,8 @@ const CanonExcerpts = ({ allSources }: CanonExcerptsProps) => {
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex items-center space-x-2 mb-2">
-                <span className="text-sm font-medium text-gray-700">
+            <div className="mb-1 flex items-center gap-2">
+                <span className="text-sm font-medium text-[#444444]">
                     All Retrieved Excerpts ({Object.keys(allSources).length})
                 </span>
             </div>
@@ -33,36 +39,36 @@ const CanonExcerpts = ({ allSources }: CanonExcerptsProps) => {
                 {Object.entries(allSources).map(([sourceId, source]) => (
                     <div
                         key={sourceId}
-                        className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                        className="rounded-[22px] border border-[#dddddd] bg-white/80 p-4 transition-colors"
                     >
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                                <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded font-mono">
-                                    [{sourceId}]
+                        <div className="mb-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#efefef] text-sm font-medium text-[#444444]">
+                                    {citationNumbers[sourceId]}
                                 </span>
-                                <span className="text-xs text-gray-600 font-medium">
-                                    {source.source}
+                                <span className="text-sm font-medium text-[#222222]">
+                                    {source.source.replaceAll("-", " ")}
                                 </span>
                                 {source.page > 0 && (
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-[#777777]">
                                         Page {source.page}
                                     </span>
                                 )}
                             </div>
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-[#777777]">
                                 {source.rerank_score && (
-                                    <span className="px-2 py-1 bg-gray-200 rounded">
+                                    <span className="rounded-full bg-[#efefef] px-2 py-1">
                                         Score: {(source.rerank_score * 100).toFixed(1)}%
                                     </span>
                                 )}
                             </div>
                         </div>
                         {source.section && (
-                            <div className="text-xs text-gray-600 mb-2 font-medium">
+                            <div className="mb-2 text-xs font-medium text-[#666666]">
                                 {source.section}
                             </div>
                         )}
-                        <MarkdownRenderer content={source.text} className="text-sm text-gray-700 leading-relaxed" />
+                        <MarkdownRenderer content={source.text} className="text-[15px] leading-7 text-[#333333]" />
                     </div>
                 ))}
             </div>

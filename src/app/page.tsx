@@ -72,6 +72,12 @@ interface StoredConversation extends Omit<chatConversation, 'created_at' | 'upda
 // API configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
+const sanitiseAssistantContent = (content: string): string =>
+  content
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/<\/?think>/gi, '')
+    .trim()
+
 // Enhanced agentic RAG chatbot
 const callChatAPI = async (
   message: string,
@@ -168,14 +174,7 @@ const callStreamingChatAPI = async (
 }
 
 export default function ChatBot() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Hello! I'm Project X, an intelligent medical research assistant. I can investigate your medical questions using advanced search tools. Ask me anything!",
-      sender: 'bot',
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [useStreaming, setUseStreaming] = useState(true) // Default to streaming for better UX
@@ -241,20 +240,19 @@ export default function ChatBot() {
 
   // Save current conversation to localStorage whenever messages change
   useEffect(() => {
-    if (messages.length > 1) { // Only save if there are actual messages beyond the intro
+    if (messages.length > 1 && currentConversationId) { // Only save if there are actual messages beyond the intro
       setChatConversations(prevConversations => {
-        const activeConversationId = currentConversationId ?? Date.now().toString()
-        const existingConversation = prevConversations.find(conv => conv.id === activeConversationId)
+        const existingConversation = prevConversations.find(conv => conv.id === currentConversationId)
 
         const updatedConversations = existingConversation
           ? prevConversations.map(conv =>
-              conv.id === activeConversationId
+              conv.id === currentConversationId
                 ? { ...conv, messages, updated_at: new Date() }
                 : conv
             )
           : [
               {
-                id: activeConversationId,
+                id: currentConversationId,
                 messages,
                 created_at: new Date(),
                 updated_at: new Date()
@@ -264,14 +262,10 @@ export default function ChatBot() {
 
         localStorage.setItem('chatConversations', JSON.stringify(updatedConversations))
 
-        if (currentConversationId !== activeConversationId) {
-          setCurrentConversationId(activeConversationId)
-        }
-
         return updatedConversations
       })
     }
-  }, [messages])
+  }, [messages, currentConversationId])
 
   // Clear localStorage when user leaves or refreshes
   useEffect(() => {
@@ -294,14 +288,7 @@ export default function ChatBot() {
 
   // Handler to start a new conversation
   const handleNewConversation = () => {
-    setMessages([
-      {
-        id: '1',
-        content: "Hello! I'm Project X, an intelligent medical research assistant. I can investigate your medical questions using advanced search tools. Ask me anything!",
-        sender: 'bot',
-        timestamp: new Date(),
-      },
-    ])
+    setMessages([])
     setCurrentConversationId(null)
     setInputMessage('')
   }
@@ -331,6 +318,11 @@ export default function ChatBot() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isTyping) return
 
+    const activeConversationId = currentConversationId ?? Date.now().toString()
+    if (!currentConversationId) {
+      setCurrentConversationId(activeConversationId)
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputMessage,
@@ -340,7 +332,6 @@ export default function ChatBot() {
 
     // Build multi-turn history from prior messages (skip the initial bot greeting)
     const history: Array<{ role: string; content: string }> = messages
-      .filter(msg => !(msg.id === '1' && msg.sender === 'bot'))
       .filter(msg => msg.content && !msg.isStreaming && !msg.error)
       .map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
@@ -404,15 +395,7 @@ export default function ChatBot() {
                 break
 
               case 'thinking':
-                // Show AI thinking process
-                if (event.content) {
-                  setMessages(prev => prev.map(msg =>
-                    msg.id === streamingMessage.id ? {
-                      ...msg,
-                      content: msg.content + `\n\n**Thinking:** ${event.content}`
-                    } : msg
-                  ))
-                }
+                // Do not surface internal model reasoning in the UI
                 break
 
               case 'answer':
@@ -421,7 +404,7 @@ export default function ChatBot() {
                   setMessages(prev => prev.map(msg =>
                     msg.id === streamingMessage.id ? {
                       ...msg,
-                      content: answerContent
+                      content: sanitiseAssistantContent(answerContent)
                     } : msg
                   ))
                 }
@@ -482,7 +465,7 @@ export default function ChatBot() {
 
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: response.reply,
+          content: sanitiseAssistantContent(response.reply),
           sender: 'bot',
           timestamp: new Date(),
           sources: response.sources,
@@ -528,14 +511,7 @@ export default function ChatBot() {
   }
 
   const clearChat = () => {
-    setMessages([
-      {
-        id: '1',
-        content: "Hello! I'm Project X, an intelligent medical research assistant. I can investigate your medical questions using advanced search tools. Ask me anything!",
-        sender: 'bot',
-        timestamp: new Date(),
-      },
-    ])
+    setMessages([])
   }
 
   const StatusIndicator = () => (
@@ -562,7 +538,7 @@ export default function ChatBot() {
       onLoadConversation={handleLoadConversation}
       onCountryChange={setSelectedCountry}
     >
-      {messages.length === 1 && messages[0].sender === 'bot' ?
+      {messages.length === 0 ?
         (<ChatHome
           inputMessage={inputMessage}
           setInputMessage={setInputMessage}

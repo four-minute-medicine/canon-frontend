@@ -30,71 +30,40 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
 
 
     return (
-        <div className="flex w-full max-w-none flex-col items-start justify-center rounded-3xl py-5 text-black md:mx-auto lg:mx-auto">
-            <div
-                className="w-full max-w-full rounded-2xl px-1 py-3 sm:max-w-[90%] sm:px-4"
-            >
-                {/* <div className="leading-relaxed whitespace-pre-wrap wrap-break-word">
-                    {response}
-                </div> */}
+        <div className="w-full max-w-4xl py-2 text-black">
+            <div className={`mb-3 flex flex-wrap items-center gap-5 px-2 ${isMobile ? "justify-start" : ""}`}>
+                {(['answer', 'sources', 'excerpts'] as const).map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`border-b pb-1 text-[15px] transition-colors ${
+                            activeTab === tab
+                                ? 'border-black font-semibold text-black'
+                                : 'border-transparent text-black/75 hover:text-black'
+                        }`}
+                    >
+                        {tab === 'answer' ? 'Answer' : tab === 'sources' ? 'Sources' : 'Excerpts'}
+                    </button>
+                ))}
+            </div>
 
-                {/* tabs */}
-                <div className={`mb-4 flex flex-wrap items-center gap-2 ${isMobile ? "justify-start" : ""} sm:mb-0 sm:gap-4`}>
-
-                    {/* Answer */}
-                    <div className="rounded-lg transition">
-                        <button
-                            onClick={() => setActiveTab('answer')}
-                            className={`relative group font-helvetica flex items-center px-3 py-1.5 rounded-lg focus:outline-none transition-colors
-                                ${activeTab === 'answer' ? 'text-black font-medium' : 'text-black hover:font-medium'}
-                            `}
-                        >
-                            <span>Answer</span>
-                            <span
-                                className={`absolute bottom-0 left-0 h-[2px] w-full bg-gray-500 transition-transform duration-300 origin-left
-                                    ${activeTab === 'answer' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
-                                `}
-                            />
-                        </button>
-                    </div>
-
-                    {/* Sources */}
-                    <div className="rounded-lg transition">
-                        <button
-                            onClick={() => setActiveTab('sources')}
-                            className={`relative group font-helvetica flex items-center px-3 py-1.5 rounded-lg focus:outline-none transition-colors
-                                ${activeTab === 'sources' ? 'text-black font-medium' : 'text-black hover:font-medium'}
-                            `}
-                        >
-                            <span className="ml-1">Sources</span>
-                            <span
-                                className={`absolute bottom-0 left-0 h-[2px] w-full bg-gray-500 transition-transform duration-300 origin-left
-                                    ${activeTab === 'sources' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
-                                `}
-                            />
-                        </button>
-                    </div>
-
-                    {/* Excerpts */}
-                    <div className="rounded-lg transition">
-                        <button
-                            onClick={() => setActiveTab('excerpts')}
-                            className={`relative group font-helvetica flex items-center px-3 py-1.5 rounded-lg focus:outline-none transition-colors
-                                ${activeTab === 'excerpts' ? 'text-black font-medium' : 'text-black hover:font-medium'}
-                            `}
-                        >
-                            <span className="ml-1">Excerpts</span>
-                            <span
-                                className={`absolute bottom-0 left-0 h-[2px] w-full bg-gray-500 transition-transform duration-300 origin-left
-                                    ${activeTab === 'excerpts' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
-                                `}
-                            />
-                        </button>
-                    </div>
+            <div className="w-full rounded-[30px] bg-[#f3f3f3] px-4 py-4 sm:px-5 sm:py-5">
+                <div className="space-y-3">
+                    {toolCalls && toolCalls.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2">
+                            {toolCalls.map((tool, index) => (
+                                <span
+                                    key={`${tool.tool}-${index}`}
+                                    className="rounded-full bg-[#e6e6e6] px-3 py-1 text-sm text-[#3a3a3a]"
+                                >
+                                    {tool.tool.replaceAll('_', ' ')}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Tab Content Sections - desktop view */}
-                <div className="mt-6">
+                <div className="mt-3">
                     {activeTab === 'answer' && (
                         <CanonAnswer
                             response={response}
@@ -117,12 +86,6 @@ const CanonResponseView = ({ response, messageId, sources, allSources, toolCalls
                         />
                     )}
                 </div>
-
-                {/* timestamp */}
-                {/* <div className="text-xs text-[#717182] mb-1">
-                                        {isUser ? "You" : ""}{" "}
-                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}
-                                    </div> */}
             </div>
         </div>
     )

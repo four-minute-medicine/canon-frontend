@@ -46,40 +46,25 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
     }, [messages, isResponding]);
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col border-t border-teal-light">
-            <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-4 py-4 sm:px-6 lg:px-10">
+        <div className="flex min-h-0 flex-1 flex-col border-t border-black/5">
+            <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-4 sm:px-6 lg:px-10">
+                <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
                 {messages.map((msg) => {
                     const isUser = msg.sender !== "bot";
-                    const introMessage = msg.id === "1" && !isUser ? true : false;
+                    const introMessage = msg.id === "1" && !isUser;
 
                     if (isUser) {
                         return (
                             <div
                                 key={msg.id}
-                                className="flex items-start gap-2">
-                                {/* message container */}
-                                <div
-                                    className="flex w-full justify-start"
-                                >
-                                    <div
-                                        className={`max-w-[92%] rounded-2xl px-1 py-2 sm:max-w-[80%] ${isUser
-                                            ? " text-black justify-end"
-                                            : introMessage ? " text-black justify-start" : "text-black justify-start"
-                                            }`}
-                                    >
-                                        <div className="leading-relaxed whitespace-pre-wrap wrap-break-word">
+                                className="w-full max-w-3xl"
+                            >
+                                    <div className="wrap-break-word whitespace-pre-wrap text-[15px] leading-7 text-black sm:text-base">
                                             {msg.message}
-                                        </div>
-
-                                        {/* timestamp */}
-                                        <div className="text-xs text-[#717182] mb-1">
-                                        {isUser ? "You" : ""}{" "}
-                                        {/* {new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })} */}
                                     </div>
+                                    <div className="mt-1 text-sm text-[#7a7a7a]">
+                                        You
                                     </div>
-                                </div>
-
-
                             </div>
 
                         );
@@ -87,28 +72,15 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                         return (
                             <div
                                 key={msg.id}
-                                className="flex items-start gap-2">
-
-                                {/* message container */}
-                                <div
-                                    className="flex w-full justify-start"
-                                >
+                                className="w-full max-w-4xl"
+                            >
                                     <div
-                                        className="max-w-[92%] rounded-2xl px-1 py-2 text-black justify-start sm:max-w-[80%]"
+                                        className="rounded-[28px] bg-[#f3f3f3] px-5 py-5 text-black sm:px-6 sm:py-6"
                                     >
-                                        <div className="leading-relaxed whitespace-pre-wrap wrap-break-word">
+                                        <div className="wrap-break-word whitespace-pre-wrap text-[15px] leading-7 text-[#222222] sm:text-base">
                                             {msg.message}
                                         </div>
-
-                                        {/* timestamp */}
-                                        {/* <div className="text-xs text-[#717182] mb-1">
-                                        {isUser ? "You" : ""}{" "}
-                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}
-                                    </div> */}
                                     </div>
-                                </div>
-
-
                             </div>
                         );
                     } else {
@@ -129,25 +101,21 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
                 {isResponding && (
                     <div className="flex w-full justify-start">
-                        <div className="max-w-[75%] rounded-2xl px-4 py-3 text-[#1E1E1E] sm:max-w-[60%]">
-                            <div className="text-xs text-[#717182] mb-1">Canon · thinking…</div>
-                            <div className="flex gap-1">
-                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" />
-                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-150" />
-                                <span className="w-2 h-2 rounded-full bg-gray-400 animate-pulse delay-300" />
-                            </div>
+                        <div className="rounded-full bg-[#ececec] px-4 py-2 text-sm text-[#666666]">
+                            Project X is responding
                         </div>
                     </div>
                 )}
+                </div>
                 <div ref={endRef} />
             </div>
 
             {/* Chat Input */}
-            <div className="sticky bottom-0 border-t border-black/5 bg-[#F7F7F7]/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-10">
-                <div className="mx-auto flex w-full max-w-4xl items-end gap-2 rounded-[28px] bg-white px-4 py-3 shadow-sm sm:gap-3 sm:px-6 sm:py-4">
+            <div className="sticky bottom-0 border-t border-black/5 bg-[#f7f7f7]/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-10">
+                <div className="mx-auto flex w-full max-w-5xl items-end gap-2 rounded-[28px] border border-[#d7d7d7] bg-white px-4 py-3 shadow-sm sm:gap-3 sm:px-6 sm:py-4">
                     <textarea
-                        placeholder={isResponding ? "Thinking..." : "Ask Anything..."}
-                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 leading-6 text-gray-700 outline-none placeholder:text-gray-400 focus:ring-0"
+                        placeholder={isResponding ? "Replying..." : "Ask Anything..."}
+                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 text-[15px] leading-6 text-[#444444] outline-none placeholder:text-[#9a9a9a] focus:ring-0"
                         rows={1}
                         onKeyPress={handleKeyPress}
                         value={inputMessage}
@@ -164,15 +132,15 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
                         className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
                         disabled={isResponding}
                     >
-                        <GrMicrophone className="text-gray-600" size={24} />
+                        <GrMicrophone className="text-[#5b6574]" size={24} />
                     </button>
 
                     {/* send button */}
                     <button
                         className={`mb-1 ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors
                         ${inputMessage.trim() ?
-                                "bg-black text-white hover:bg-gray-800"
-                                : "bg-gray-300 text-white cursor-not-allowed"
+                                "bg-[#e7e7e7] text-[#202020] hover:bg-[#dcdcdc]"
+                                : "bg-[#efefef] text-[#aaaaaa] cursor-not-allowed"
                             }`}
                         disabled={!inputMessage.trim()}
                         onClick={handleSendMessage}

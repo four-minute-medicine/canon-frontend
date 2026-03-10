@@ -16,34 +16,30 @@ interface CanonAnswerProps {
 }
 
 const CanonAnswer = ({ response, messageId, sources }: CanonAnswerProps) => {
-    // console.log("response", response);
+    const sourceIds = Object.keys(sources || {});
+    const citationNumbers = sourceIds.reduce<Record<string, number>>((acc, sourceId, index) => {
+        acc[sourceId] = index + 1;
+        return acc;
+    }, {});
+    const cleanedResponse = response
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .replace(/<\/?think>/gi, '')
+        .replace(/\[([^\]]+)\]/g, (fullMatch, sourceId: string) => {
+            const citationNumber = citationNumbers[sourceId];
+            if (!citationNumber) {
+                return fullMatch;
+            }
+
+            return `<a href="#source-${messageId}-${sourceId}" class="inline-flex h-4 min-w-4 -translate-y-1/3 items-center justify-center rounded-full bg-[#D9D9D9] px-1 text-[0.5em] font-medium leading-none text-[#222222] align-top">${citationNumber}</a>`;
+        })
+        .trim();
+
     return (
-        <div className="flex flex-col items-start justify-center text-black rounded-3xl py-5 w-full max-w-none md:mx-auto lg:mx-auto">
-            {/* Main content with enhanced citation formatting */}
-            <div className="leading-relaxed whitespace-pre-wrap">
-                {response.split(/(\[[a-f0-9]{4}\])/g).map((part, index) => {
-                    const sourceMatch = part.match(/\[([a-f0-9]{4})\]/);
-                    if (sourceMatch && sources && sources[sourceMatch[1]]) {
-                        const sourceId = sourceMatch[1];
-                        const source = sources[sourceId];
-                        return (
-                            <span
-                                key={index}
-                                className="inline-flex items-center px-1.5 py-0.5 bg-blue-600/20 text-blue-600 text-xs rounded border border-blue-600/30 cursor-pointer hover:bg-blue-600/30 transition-colors"
-                                onClick={() => {
-                                    // Scroll to corresponding source card
-                                    const sourceCard = document.getElementById(`source-${messageId}-${sourceId}`);
-                                    sourceCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }}
-                                title={`${source.source} - Page ${source.page}`}
-                            >
-                                <MarkdownRenderer content={part} className="text-sm" />
-                            </span>
-                        );
-                    }
-                    return <MarkdownRenderer key={index} content={part} className="text-sm" />;
-                })}
-            </div>
+        <div className="w-full">
+            <MarkdownRenderer
+                content={cleanedResponse}
+                className="text-[15px] leading-7 text-[#222222] sm:text-base"
+            />
         </div>
     );
 };
