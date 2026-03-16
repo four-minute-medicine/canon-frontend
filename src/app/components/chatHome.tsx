@@ -34,10 +34,10 @@ const ChatHome = ({ handleSendMessage, handleKeyPress, inputMessage, setInputMes
                 </div>
 
                 {/* Chat Input */}
-                <div className="relative flex w-full max-w-4xl items-end gap-2 rounded-[28px] bg-white px-4 py-3 shadow-sm sm:gap-3 sm:px-6 sm:py-4">
+                <div className="relative flex w-full max-w-4xl items-end gap-2 rounded-[28px] border border-gray-200 bg-white px-4 py-3 shadow-sm transition-all duration-200 ease-in-out hover:border-gray-300 hover:shadow-md focus-within:border-blue-500 focus-within:shadow-md focus-within:ring-2 focus-within:ring-blue-500/20 sm:gap-3 sm:px-6 sm:py-4">
                     <textarea
                         placeholder="Ask Anything..."
-                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 leading-6 text-gray-700 outline-none placeholder:text-gray-400 focus:ring-0"
+                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 leading-6 text-gray-700 outline-none placeholder:text-gray-400 focus:ring-0 transition-colors duration-200"
                         rows={1}
                         onKeyPress={handleKeyPress}
                         value={inputMessage}
@@ -51,22 +51,22 @@ const ChatHome = ({ handleSendMessage, handleKeyPress, inputMessage, setInputMes
 
                     {/* mic button */}
                     <button
-                        className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
+                        className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 ease-in-out hover:bg-gray-100 hover:scale-105 active:scale-95"
                     >
-                        <GrMicrophone className="text-gray-600" size={24} />
+                        <GrMicrophone className="text-gray-600 transition-colors duration-200" size={24} />
                     </button>
 
                     {/* send button */}
                     <button
-                        className={`mb-1 ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors
+                        className={`mb-1 ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 ease-in-out
                             ${inputMessage.trim() ?
-                                "bg-black text-white hover:bg-gray-800"
+                                "bg-black text-white hover:bg-gray-800 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                                 : "bg-gray-300 text-white cursor-not-allowed"
                             }`}
                         disabled={!inputMessage.trim()}
                         onClick={handleSendMessage}
                     >
-                        <HiArrowUp className="text-xl" />
+                        <HiArrowUp className="text-xl transition-transform duration-200" />
                     </button>
                 </div>
             </div>

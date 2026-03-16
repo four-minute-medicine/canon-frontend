@@ -101,8 +101,8 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
                 {isResponding && (
                     <div className="flex w-full justify-start">
-                        <div className="rounded-full bg-[#ececec] px-4 py-2 text-sm text-[#666666]">
-                            Project X is responding
+                        <div className="rounded-full bg-[#ececec] px-4 py-2 text-sm text-[#666666] animate-pulse">
+                            Formulating response
                         </div>
                     </div>
                 )}
@@ -112,10 +112,10 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
             {/* Chat Input */}
             <div className="sticky bottom-0 border-t border-black/5 bg-[#f7f7f7]/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-10">
-                <div className="mx-auto flex w-full max-w-5xl items-end gap-2 rounded-[28px] border border-[#d7d7d7] bg-white px-4 py-3 shadow-sm sm:gap-3 sm:px-6 sm:py-4">
+                <div className="mx-auto flex w-full max-w-5xl items-end gap-2 rounded-[28px] border border-[#d7d7d7] bg-white px-4 py-3 shadow-sm transition-all duration-200 ease-in-out hover:border-[#c0c0c0] hover:shadow-md focus-within:border-blue-500 focus-within:shadow-md focus-within:ring-2 focus-within:ring-blue-500/20 sm:gap-3 sm:px-6 sm:py-4">
                     <textarea
                         placeholder={isResponding ? "Replying..." : "Ask Anything..."}
-                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 text-[15px] leading-6 text-[#444444] outline-none placeholder:text-[#9a9a9a] focus:ring-0"
+                        className="custom-scrollbar min-h-[40px] max-h-[140px] w-full resize-none border-none bg-transparent py-2 text-[15px] leading-6 text-[#444444] outline-none placeholder:text-[#9a9a9a] focus:ring-0 transition-colors duration-200"
                         rows={1}
                         onKeyPress={handleKeyPress}
                         value={inputMessage}
@@ -129,23 +129,23 @@ const ActiveChat = ({ messages, isResponding = false, handleSendMessage, handleK
 
                     {/* mic button */}
                     <button
-                        className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
+                        className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 ease-in-out hover:bg-gray-100 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:hover:bg-transparent"
                         disabled={isResponding}
                     >
-                        <GrMicrophone className="text-[#5b6574]" size={24} />
+                        <GrMicrophone className="text-[#5b6574] transition-colors duration-200" size={24} />
                     </button>
 
                     {/* send button */}
                     <button
-                        className={`mb-1 ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors
+                        className={`mb-1 ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-200 ease-in-out
                         ${inputMessage.trim() ?
-                                "bg-[#e7e7e7] text-[#202020] hover:bg-[#dcdcdc]"
+                                "bg-[#e7e7e7] text-[#202020] hover:bg-[#dcdcdc] hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                                 : "bg-[#efefef] text-[#aaaaaa] cursor-not-allowed"
                             }`}
                         disabled={!inputMessage.trim()}
                         onClick={handleSendMessage}
                     >
-                        <HiArrowUp className="text-xl" />
+                        <HiArrowUp className="text-xl transition-transform duration-200" />
                     </button>
                 </div>
             </div>

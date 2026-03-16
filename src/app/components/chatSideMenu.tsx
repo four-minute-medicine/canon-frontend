@@ -72,8 +72,8 @@ const ChatSideMenu = ({
 
             <nav
                 className={`z-50 flex h-screen flex-col bg-[#EDEDED] text-black transition-transform duration-300 ease-out ${isTablet
-                    ? `fixed top-0 left-0 w-[85vw] max-w-[320px] ${isCollapsed ? "translate-x-0" : "-translate-x-full"}`
-                    : `relative shrink-0 ${isDesktopCollapsed ? "w-[88px]" : "w-[320px]"}`
+                    ? `fixed top-0 left-0 w-[85vw] max-w-[270px] ${isCollapsed ? "translate-x-0" : "-translate-x-full"}`
+                    : `relative shrink-0 ${isDesktopCollapsed ? "w-[88px]" : "w-[270px]"}`
                     }`}
             >
             {/* logo & toggle button */}
