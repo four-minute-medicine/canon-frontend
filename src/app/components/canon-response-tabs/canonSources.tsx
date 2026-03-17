@@ -1,4 +1,4 @@
-import { Zap } from 'lucide-react';
+import { Zap, ExternalLink } from 'lucide-react';
 
 interface Source {
     text: string;
@@ -7,6 +7,7 @@ interface Source {
     section: string;
     rerank_score?: number;
     keyword_matches?: number;
+    url?: string;
 }
 
 interface CanonSourcesProps {
@@ -25,6 +26,7 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
         sourceIds: string[];
         pages: number[];
         sections: string[];
+        url?: string;
     }>>((groups, [sourceId, source]) => {
         const label = source.source.replaceAll("-", " ");
         const existingGroup = groups.find((group) => group.label === label);
@@ -40,6 +42,11 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
                 existingGroup.sections.push(source.section);
             }
 
+            // Set URL if not already set
+            if (source.url && !existingGroup.url) {
+                existingGroup.url = source.url;
+            }
+
             return groups;
         }
 
@@ -48,6 +55,7 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
             sourceIds: [sourceId],
             pages: source.page > 0 ? [source.page] : [],
             sections: source.section ? [source.section] : [],
+            url: source.url,
         });
 
         return groups;
@@ -82,7 +90,18 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
                 {groupedSources.map((sourceGroup, index) => (
                     <div
                         key={sourceGroup.label}
-                        className="rounded-[22px] border border-[#dddddd] bg-white/80 p-4 transition-colors"
+                        className={`rounded-[22px] border border-[#dddddd] bg-white/80 p-4 transition-colors ${
+                            sourceGroup.url 
+                                ? 'hover:bg-blue-50/50 cursor-pointer hover:border-blue-200' 
+                                : ''
+                        }`}
+                        onClick={() => {
+                            if (sourceGroup.url) {
+                                console.log("Source card clicked, opening:", sourceGroup.url);
+                                window.open(sourceGroup.url, '_blank', 'noopener,noreferrer');
+                            }
+                        }}
+                        title={sourceGroup.url ? `Click to open: ${sourceGroup.url}` : undefined}
                     >
                         {sourceGroup.sourceIds.map((sourceId) => (
                             <span
@@ -96,9 +115,19 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
                                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#efefef] text-sm font-medium text-[#444444]">
                                     {index + 1}
                                 </span>
-                                <span className="text-[15px] font-medium text-[#222222] sm:text-base">
-                                    {sourceGroup.label}
-                                </span>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[15px] font-medium text-[#222222] sm:text-base">
+                                            {sourceGroup.label}
+                                        </span>
+                                        {sourceGroup.url && (
+                                            <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-600">
+                                                <ExternalLink className="h-3 w-3" />
+                                                <span>Click to open</span>
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 text-xs text-[#777777]">
                                 {sourceGroup.sourceIds.length > 1 && (

@@ -10,6 +10,7 @@ interface Source {
     section: string;
     rerank_score?: number;
     keyword_matches?: number;
+    url?: string;
 }
 
 interface CanonResponseViewProps {
