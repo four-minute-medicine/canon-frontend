@@ -120,12 +120,6 @@ const CanonSources = ({ messageId, sources, toolCalls }: CanonSourcesProps) => {
                                         <span className="text-[15px] font-medium text-[#222222] sm:text-base">
                                             {sourceGroup.label}
                                         </span>
-                                        {sourceGroup.url && (
-                                            <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-600">
-                                                <ExternalLink className="h-3 w-3" />
-                                                <span>Click to open</span>
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
                             </div>
