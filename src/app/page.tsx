@@ -364,6 +364,31 @@ export default function ChatBot() {
         let answerContent = ''
         let sources: Record<string, Source> = {}
         const toolCalls: ToolCall[] = []
+        let streamUpdateQueued = false
+
+        const flushStreamingContent = (force = false) => {
+          const applyUpdate = () => {
+            setMessages(prev => prev.map(msg =>
+              msg.id === streamingMessage.id ? {
+                ...msg,
+                content: sanitiseAssistantContent(answerContent)
+              } : msg
+            ))
+          }
+
+          if (force) {
+            streamUpdateQueued = false
+            applyUpdate()
+            return
+          }
+
+          if (streamUpdateQueued) return
+          streamUpdateQueued = true
+          requestAnimationFrame(() => {
+            streamUpdateQueued = false
+            applyUpdate()
+          })
+        }
 
         await callStreamingChatAPI(
           currentInput,
@@ -401,12 +426,7 @@ export default function ChatBot() {
               case 'answer':
                 if (event.content) {
                   answerContent += event.content
-                  setMessages(prev => prev.map(msg =>
-                    msg.id === streamingMessage.id ? {
-                      ...msg,
-                      content: sanitiseAssistantContent(answerContent)
-                    } : msg
-                  ))
+                  flushStreamingContent()
                 }
                 break
 
@@ -424,6 +444,7 @@ export default function ChatBot() {
 
               case 'done':
                 console.log('[SSE] done event, sources at this point:', Object.keys(sources).length)
+                flushStreamingContent(true)
                 setMessages(prev => {
                   const updated = prev.map(msg =>
                     msg.id === streamingMessage.id ? {

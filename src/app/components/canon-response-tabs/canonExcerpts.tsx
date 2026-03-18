@@ -1,4 +1,4 @@
-import MarkdownRenderer from '@/app/utils/markdownRenderer';
+import MarkdownRenderer from '@/components/ui/MarkdownRenderer';
 
 interface Source {
     text: string;
