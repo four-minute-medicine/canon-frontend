@@ -2,28 +2,43 @@
 
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
+import { createSupabaseBrowserClient } from '@/lib/supabase'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
-import PasswordField from './PasswordField'
 import { authBrandName, authPills } from './authConfig'
 
-export default function LoginForm() {
+export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
+    setSuccessMessage('')
     setIsSubmitting(true)
 
     try {
-      // Replace with real auth call once backend endpoint is ready.
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      console.log('Login submitted', { email, password })
+      const supabase = createSupabaseBrowserClient()
+      const redirectTo = `${window.location.origin}/reset-password`
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo,
+        }
+      )
+
+      if (resetError) {
+        throw resetError
+      }
+
+      setSuccessMessage(
+        'If an account exists for this email, we sent a password reset link. Please check your inbox.'
+      )
     } catch {
-      setError('Unable to sign in right now. Please try again.')
+      setError('Unable to send reset email right now. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -31,16 +46,21 @@ export default function LoginForm() {
 
   return (
     <AuthShell
-      title="Pick Up Where You Left Off"
-      description={`One step closer to clinical mastery. Sign in to continue your sessions and access trusted, context-aware guidance in ${authBrandName}.`}
+      title="Reset your password"
+      description={`Recover access to ${authBrandName}. We’ll email you a secure reset link.`}
       pills={authPills}
-      formTitle="Welcome back"
-      formDescription={`Sign in to continue using ${authBrandName}.`}
-      footerText="Don’t have an account?"
-      footerLinkLabel="Create one"
-      footerLinkHref="/signup"
+      formTitle="Forgot password?"
+      formDescription="Enter your email and we’ll send you a reset link."
+      footerText="Remembered your password?"
+      footerLinkLabel="Back to sign in"
+      footerLinkHref="/login"
     >
       {error ? <AuthError message={error} /> : null}
+      {successMessage ? (
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {successMessage}
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
@@ -59,32 +79,20 @@ export default function LoginForm() {
           />
         </div>
 
-        <PasswordField
-          id="password"
-          label="Password"
-          value={password}
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          onChange={setPassword}
-        />
-
-        <div className="flex justify-center">
-          <Link
-            href="/forgot-password"
-            className="text-sm font-medium text-gray-800 underline-offset-2 hover:underline"
-          >
-            Forgot password?
-          </Link>
-        </div>
-
         <button
           type="submit"
           disabled={isSubmitting}
           className="w-full rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
+          {isSubmitting ? 'Sending reset link...' : 'Send reset link'}
         </button>
       </form>
+
+      <div className="mt-4 text-center text-xs text-gray-500">
+        <Link href="/signup" className="underline-offset-2 hover:underline">
+          Need an account? Create one
+        </Link>
+      </div>
     </AuthShell>
   )
 }
