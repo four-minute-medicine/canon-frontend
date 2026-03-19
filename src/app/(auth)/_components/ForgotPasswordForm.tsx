@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
-import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
 import { authBrandName, authPills } from './authConfig'

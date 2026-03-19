@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
 import PasswordField from './PasswordField'
