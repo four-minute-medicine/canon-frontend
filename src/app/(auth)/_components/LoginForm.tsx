@@ -1,29 +1,45 @@
 'use client'
 
 import Link from 'next/link'
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
 import PasswordField from './PasswordField'
 import { authBrandName, authPills } from './authConfig'
 
 export default function LoginForm() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
     setIsSubmitting(true)
 
     try {
-      // Replace with real auth call once backend endpoint is ready.
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      console.log('Login submitted', { email, password })
-    } catch {
-      setError('Unable to sign in right now. Please try again.')
+      const supabase = createSupabaseBrowserClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (signInError) {
+        throw signInError
+      }
+
+      router.push('/')
+      router.refresh()
+    } catch (submissionError) {
+      if (submissionError instanceof Error) {
+        setError(submissionError.message)
+      } else {
+        setError('Unable to sign in right now. Please try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }

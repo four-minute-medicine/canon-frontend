@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
@@ -13,7 +13,7 @@ export default function ForgotPasswordForm() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
     setSuccessMessage('')

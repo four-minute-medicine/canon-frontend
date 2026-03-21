@@ -16,6 +16,7 @@ interface ChatLayoutProps {
     onNewConversation?: () => void;
     onLoadConversation?: (id: string) => void;
     onCountryChange?: (isoCode: string) => void;
+    isAuthenticated?: boolean;
 }
 
 const useMediaQuery = (query: string): boolean => {
@@ -55,7 +56,8 @@ const ChatLayout = ({
     currentConversationId = null,
     onNewConversation = () => { },
     onLoadConversation = () => { },
-    onCountryChange
+    onCountryChange,
+    isAuthenticated = false
 }: ChatLayoutProps) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const isMobile = useMediaQuery("(max-width: 768px)");
@@ -77,7 +79,14 @@ const ChatLayout = ({
             {/* main content */}
             <div className="relative flex min-w-0 flex-1 flex-col bg-white border-r border-gray-200">
                 {/* header */}
-                <ChatHeader isMobile={isMobile} isTablet={isTablet} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} onCountryChange={onCountryChange} />
+                <ChatHeader
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isCollapsed={isCollapsed}
+                    setIsCollapsed={setIsCollapsed}
+                    onCountryChange={onCountryChange}
+                    isAuthenticated={isAuthenticated}
+                />
 
 
                 {/* chat container */}

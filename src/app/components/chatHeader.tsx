@@ -2,6 +2,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
 import { GoSidebarCollapse } from "react-icons/go";
+import { FiUser } from "react-icons/fi";
 
 const COUNTRY_MAP: Record<string, string> = {
     ZA: "South Africa",
@@ -33,9 +34,10 @@ interface ChatHeaderProps {
     isCollapsed: boolean;
     setIsCollapsed: (isCollapsed: boolean) => void;
     onCountryChange?: (isoCode: string) => void;
+    isAuthenticated?: boolean;
 }
 
-const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountryChange }: ChatHeaderProps) => {
+const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountryChange, isAuthenticated = false }: ChatHeaderProps) => {
     const router = useRouter();
     const [isCountryMenuOpen, setIsCountryMenuOpen] = useState(false);
     const [selectedCountryCode, setSelectedCountryCode] = useState("");
@@ -235,22 +237,34 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
                     </div>)}
 
 
-                {/* login button */}
-                <span
-                    className="relative hidden cursor-pointer text-sm font-medium text-black group sm:inline-block sm:text-base"
-                    onClick={() => router.push("/login")}
-                >
-                    {isMobile ? "Login" : "Log In"}
-                    <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
-                </span>
+                {isAuthenticated ? (
+                    <button
+                        type="button"
+                        aria-label="Account"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm"
+                    >
+                        <FiUser className="h-5 w-5" />
+                    </button>
+                ) : (
+                    <>
+                        {/* login button */}
+                        <span
+                            className="relative hidden cursor-pointer text-sm font-medium text-black group sm:inline-block sm:text-base"
+                            onClick={() => router.push("/login")}
+                        >
+                            {isMobile ? "Login" : "Log In"}
+                            <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
+                        </span>
 
-                {/* try it free button */}
-                <button
-                    className="rounded-3xl bg-[#1e1e1e] px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-[#2d2d2d] sm:px-5 sm:py-3"
-                    onClick={() => router.push("/signup")}
-                >
-                    {isMobile ? "Try it" : "Try it Free"}
-                </button>
+                        {/* try it free button */}
+                        <button
+                            className="rounded-3xl bg-[#1e1e1e] px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-[#2d2d2d] sm:px-5 sm:py-3"
+                            onClick={() => router.push("/signup")}
+                        >
+                            {isMobile ? "Try it" : "Try it Free"}
+                        </button>
+                    </>
+                )}
             </div>
 
         </header>

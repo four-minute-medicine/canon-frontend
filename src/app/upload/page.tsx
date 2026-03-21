@@ -186,7 +186,7 @@ export default function UploadPage() {
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!file) {
             setError('Please select a PDF file.')

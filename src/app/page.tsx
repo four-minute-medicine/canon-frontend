@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Trash2, Brain, Zap, AlertCircle, RefreshCw } from 'lucide-react'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import ChatLayout from './components/chatLayout'
 import ChatHome from './components/chatHome';
 import ActiveChat from './components/activeChat';
@@ -174,6 +175,7 @@ const callStreamingChatAPI = async (
 }
 
 export default function ChatBot() {
+  const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -189,6 +191,27 @@ export default function ChatBot() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+
+    const hydrateAuth = async () => {
+      const { data } = await supabase.auth.getSession()
+      const sessionUser = data.session?.user ?? null
+      setAuthStatus(sessionUser ? 'authenticated' : 'unauthenticated')
+    }
+
+    hydrateAuth()
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const sessionUser = session?.user ?? null
+      setAuthStatus(sessionUser ? 'authenticated' : 'unauthenticated')
+    })
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) {
@@ -558,6 +581,7 @@ export default function ChatBot() {
       onNewConversation={handleNewConversation}
       onLoadConversation={handleLoadConversation}
       onCountryChange={setSelectedCountry}
+      isAuthenticated={authStatus === 'authenticated'}
     >
       {messages.length === 0 ?
         (<ChatHome

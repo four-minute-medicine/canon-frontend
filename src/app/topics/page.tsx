@@ -108,7 +108,7 @@ export default function TopicsPage() {
         }
     }
 
-    const handleCreate = async (e: React.FormEvent) => {
+    const handleCreate = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!topicName.trim() || !selectedSource || startPage === '' || endPage === '') return
         setCreating(true)

@@ -1,6 +1,7 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AuthError from './AuthError'
 import AuthShell from './AuthShell'
 import PasswordField from './PasswordField'
@@ -13,10 +14,12 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
+    setSuccessMessage('')
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.')
@@ -26,11 +29,42 @@ export default function RegisterForm() {
     setIsSubmitting(true)
 
     try {
-      // Replace with real registration call once backend endpoint is ready.
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      console.log('Registration submitted', { fullName, email, password })
-    } catch {
-      setError('Unable to create your account right now. Please try again.')
+      const supabase = createSupabaseBrowserClient()
+      const emailRedirectTo = `${window.location.origin}/login`
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo,
+          data: {
+            full_name: fullName,
+          },
+        },
+      })
+
+      if (signUpError) {
+        throw signUpError
+      }
+
+      if (data.user?.identities?.length === 0) {
+        setError('This email is already registered. Please sign in instead.')
+        return
+      }
+
+      setFullName('')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setSuccessMessage(
+        'Account created. Please check your email and confirm your account before signing in.'
+      )
+    } catch (submissionError) {
+      if (submissionError instanceof Error) {
+        setError(submissionError.message)
+      } else {
+        setError('Unable to create your account right now. Please try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -48,6 +82,11 @@ export default function RegisterForm() {
       footerLinkHref="/login"
     >
       {error ? <AuthError message={error} /> : null}
+      {successMessage ? (
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {successMessage}
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
