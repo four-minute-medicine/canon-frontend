@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiAlertTriangle, FiHelpCircle, FiUser } from 'react-icons/fi'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -20,7 +20,6 @@ type AccountForm = {
 
 export default function AccountPage() {
   const router = useRouter()
-  const supabase = useMemo(() => createSupabaseBrowserClient(), [])
   const [isLoading, setIsLoading] = useState(true)
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isSavingPassword, setIsSavingPassword] = useState(false)
@@ -43,6 +42,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     const loadProfile = async () => {
+      const supabase = createSupabaseBrowserClient()
       const { data } = await supabase.auth.getUser()
       const user = data.user
 
@@ -64,12 +64,13 @@ export default function AccountPage() {
     }
 
     loadProfile()
-  }, [router, supabase])
+  }, [router])
 
   const handleProfileSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
     setMessage('')
+    const supabase = createSupabaseBrowserClient()
 
     if (!/^\d{6,15}$/.test(form.phoneNumber.replace(/\s+/g, ''))) {
       setError('Please enter a valid phone number (numbers only, 6-15 digits).')
@@ -104,6 +105,7 @@ export default function AccountPage() {
     event.preventDefault()
     setError('')
     setMessage('')
+    const supabase = createSupabaseBrowserClient()
 
     if (!currentPassword) {
       setError('Please enter your current password.')
@@ -150,6 +152,7 @@ export default function AccountPage() {
   }
 
   const handleLogout = async () => {
+    const supabase = createSupabaseBrowserClient()
     await supabase.auth.signOut()
     router.push('/login')
   }
