@@ -1,8 +1,9 @@
 import { IoIosArrowDown } from "react-icons/io";
 import { useRouter } from 'next/navigation';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoSidebarCollapse } from "react-icons/go";
 import { FiUser } from "react-icons/fi";
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 const COUNTRY_MAP: Record<string, string> = {
     ZA: "South Africa",
@@ -41,6 +42,8 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
     const router = useRouter();
     const [isCountryMenuOpen, setIsCountryMenuOpen] = useState(false);
     const [selectedCountryCode, setSelectedCountryCode] = useState("");
+    const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+    const accountMenuRef = useRef<HTMLDivElement>(null);
 
     const displayLabel = selectedCountryCode
         ? (isMobile ? selectedCountryCode : COUNTRY_MAP[selectedCountryCode] || selectedCountryCode)
@@ -51,6 +54,31 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
         setIsCountryMenuOpen(false);
         onCountryChange?.(isoCode);
     }
+
+    const handleLogout = async () => {
+        const supabase = createSupabaseBrowserClient()
+        await supabase.auth.signOut()
+        setIsAccountMenuOpen(false)
+        router.push('/login')
+    }
+
+    useEffect(() => {
+        if (!isAccountMenuOpen) {
+            return
+        }
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                accountMenuRef.current &&
+                !accountMenuRef.current.contains(event.target as Node)
+            ) {
+                setIsAccountMenuOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [isAccountMenuOpen])
 
     return (
         <header className="sticky top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-black/5 bg-[#F7F7F7] px-4 sm:px-6">
@@ -238,13 +266,38 @@ const ChatHeader = ({ isMobile, isTablet, isCollapsed, setIsCollapsed, onCountry
 
 
                 {isAuthenticated ? (
-                    <button
-                        type="button"
-                        aria-label="Account"
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm"
-                    >
-                        <FiUser className="h-5 w-5" />
-                    </button>
+                    <div className="relative" ref={accountMenuRef}>
+                        <button
+                            type="button"
+                            aria-label="Account"
+                            onClick={() => setIsAccountMenuOpen((prev) => !prev)}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-sm"
+                        >
+                            <FiUser className="h-5 w-5" />
+                        </button>
+
+                        {isAccountMenuOpen ? (
+                            <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsAccountMenuOpen(false)
+                                        router.push('/account')
+                                    }}
+                                    className="w-full px-4 py-3 text-left text-sm text-[#1e1e1e] transition hover:bg-gray-50"
+                                >
+                                    My Profile
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="w-full px-4 py-3 text-left text-sm text-[#1e1e1e] transition hover:bg-gray-50"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
                 ) : (
                     <>
                         {/* login button */}

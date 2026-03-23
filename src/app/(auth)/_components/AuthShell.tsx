@@ -28,32 +28,27 @@ export default function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <div className="min-h-screen bg-[#F7F7F7] text-gray-900">
-      <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 overflow-hidden lg:grid-cols-2">
-        <aside className="relative flex flex-col justify-between bg-[#0f172a] px-6 py-8 sm:px-10 lg:px-14 lg:py-12">
-          <div className="space-y-6">
-            <Link
-              href="/"
-              className="inline-flex items-center rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white/90 transition hover:border-white/40 hover:text-white"
-            >
-              {authBrandName}
-            </Link>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        {/* Mobile hero (Medhi-style auth top section) */}
+        <aside className="w-full bg-[#0f172a] px-6 py-8 lg:hidden">
+          <Link
+            href="/"
+            className="inline-flex items-center rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white/90 transition hover:border-white/40 hover:text-white"
+          >
+            {authBrandName}
+          </Link>
 
-            <div className="space-y-4">
-              <h1 className="max-w-md text-3xl leading-tight text-white sm:text-4xl">
-                {title}
-              </h1>
-              <p className="max-w-lg text-sm leading-relaxed text-white/75 sm:text-base">
-                {description}
-              </p>
-            </div>
+          <div className="mt-6 space-y-3">
+            <h1 className="max-w-md text-3xl leading-tight text-white">{title}</h1>
+            <p className="max-w-xl text-sm leading-relaxed text-white/75">{description}</p>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             {pills.map((pill) => (
               <span
                 key={pill}
-                className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs text-white/90 sm:text-sm"
+                className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs text-white/90"
               >
                 {pill}
               </span>
@@ -61,7 +56,15 @@ export default function AuthShell({
           </div>
         </aside>
 
-        <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+        {/* Form side */}
+        <section className="relative flex w-full items-center justify-center px-6 py-10 sm:px-8 lg:w-1/2 lg:px-16">
+          <Link
+            href="/"
+            className="absolute left-6 top-5 hidden items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 transition hover:border-gray-300 lg:inline-flex"
+          >
+            {authBrandName}
+          </Link>
+
           <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="mb-6 space-y-2">
               <h2 className="text-2xl text-gray-900">{formTitle}</h2>
@@ -81,6 +84,25 @@ export default function AuthShell({
             </p>
           </div>
         </section>
+
+        {/* Desktop hero side */}
+        <aside className="hidden w-1/2 flex-col justify-center gap-5 bg-[#0f172a] px-10 py-12 lg:flex xl:px-16">
+          <h1 className="max-w-lg text-5xl leading-tight text-white">{title}</h1>
+          <p className="max-w-xl text-sm leading-relaxed text-white/75 xl:text-base">
+            {description}
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            {pills.map((pill) => (
+              <span
+                key={pill}
+                className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white/90"
+              >
+                {pill}
+              </span>
+            ))}
+          </div>
+        </aside>
       </div>
     </div>
   )
